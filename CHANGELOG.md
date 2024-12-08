@@ -3,13 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][1], and this project adheres to [Semantic Versioning][2].
 
+## [0.2.2] 2024-12-07
+### Updated
+- made `no_std` and no-`alloc`/heapless-compatible
+
 ## [0.2.1] 2023-10-09
 ### Added
 - `#[repr(transparent)]` to `Amount, Instant, Id, DisplayProxy`. See also
    <https://doc.rust-lang.org/reference/type-layout.html#the-transparent-representation>.
-
-### Updated
-- `Cargo.lock`
 
 ## [0.2.0] 2019-11-09
 ### Added

@@ -1,4 +1,5 @@
 // Copyright 2019 DFINITY
+// Copyright 2023,2024 Peter Lyons Kehl
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +16,10 @@
 use crate::displayer::{DisplayProxy, DisplayerOf};
 #[cfg(feature="serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::cmp::Ordering;
-use std::fmt;
-use std::hash::{Hash, Hasher};
-use std::marker::PhantomData;
+use core::cmp::Ordering;
+use core::fmt;
+use core::hash::{Hash, Hasher};
+use core::marker::PhantomData;
 
 /// `Id<Entity, Repr>` provides a type-safe way to keep ids of
 /// entities. Note that there's no default for `Repr` type, the type
@@ -112,7 +113,7 @@ use std::marker::PhantomData;
 /// ```
 /// use phantom_newtype::Id;
 ///
-/// type Cell = std::cell::RefCell<i64>;
+/// type Cell = core::cell::RefCell<i64>;
 /// type CellId = Id<Cell, i64>;
 /// const ID: CellId = CellId::new(42);
 ///
@@ -136,7 +137,7 @@ use std::marker::PhantomData;
 /// }
 /// ```
 #[repr(transparent)]
-pub struct Id<Entity, Repr>(Repr, PhantomData<std::sync::Mutex<Entity>>);
+pub struct Id<Entity, Repr>(Repr, PhantomData<core::sync::atomic::AtomicPtr<Entity>>);
 
 impl<Entity, Repr> Id<Entity, Repr> {
     /// `get` returns the underlying representation of the identifier.
@@ -180,7 +181,7 @@ where
     ///
     /// ```
     /// use phantom_newtype::{Id, DisplayerOf};
-    /// use std::fmt;
+    /// use core::fmt;
     ///
     /// enum Message {}
     /// type MessageId = Id<Message, [u8; 32]>;

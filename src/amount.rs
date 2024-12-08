@@ -1,4 +1,5 @@
 // Copyright 2019 DFINITY
+// Copyright 2023,2024 Peter Lyons Kehl
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,11 +16,11 @@
 use crate::displayer::{DisplayProxy, DisplayerOf};
 #[cfg(feature="serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::cmp::Ordering;
-use std::fmt;
-use std::hash::{Hash, Hasher};
-use std::marker::PhantomData;
-use std::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
+use core::cmp::Ordering;
+use core::fmt;
+use core::hash::{Hash, Hasher};
+use core::marker::PhantomData;
+use core::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
 
 /// `Amount<Unit>` provides a type-safe way to keep an amount of
 /// some `Unit`.
@@ -97,7 +98,7 @@ use std::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
 /// enum Meters {}
 ///
 /// let ms = Amount::<Meters, u64>::from(10);
-/// assert_eq!(std::mem::size_of_val(&ms), std::mem::size_of::<u64>());
+/// assert_eq!(core::mem::size_of_val(&ms), core::mem::size_of::<u64>());
 /// ```
 ///
 /// Amounts can be serialized and deserialized with `serde`. Serialized
@@ -136,7 +137,7 @@ use std::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
 /// ```
 /// use phantom_newtype::Amount;
 ///
-/// type Cell = std::cell::RefCell<i64>;
+/// type Cell = core::cell::RefCell<i64>;
 /// type NumCells = Amount<Cell, i64>;
 /// const N: NumCells = NumCells::new(1);
 ///
@@ -144,7 +145,7 @@ use std::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
 /// assert_eq!(N, *n_from_thread);
 /// ```
 #[repr(transparent)]
-pub struct Amount<Unit, Repr>(Repr, PhantomData<std::sync::Mutex<Unit>>);
+pub struct Amount<Unit, Repr>(Repr, PhantomData<core::sync::atomic::AtomicPtr<Unit>>);
 
 impl<Unit, Repr: Copy> Amount<Unit, Repr> {
     /// Returns the wrapped value.
@@ -198,7 +199,7 @@ where
     ///
     /// ```
     /// use phantom_newtype::{Amount, DisplayerOf};
-    /// use std::fmt;
+    /// use core::fmt;
     ///
     /// struct Cents;
     /// type Money = Amount<Cents, u64>;
