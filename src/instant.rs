@@ -104,13 +104,13 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// use serde_json;
 ///
 /// enum SecondsFromEpoch {}
-/// type UnixTime = Instant<SecondsFromEpoch, i64>;
+/// type UnixTime = Instant<SecondsFromEpoch, u64>;
 ///
 /// let repr: u64 = 123456;
 /// let time = UnixTime::from(repr);
 /// assert_eq!(serde_json::to_string(&time).unwrap(), serde_json::to_string(&repr).unwrap());
 ///
-/// let copy: UnitTime = serde_json::from_str(&serde_json::to_string(&time).unwrap()).unwrap();
+/// let copy: UnixTime = serde_json::from_str(&serde_json::to_string(&time).unwrap()).unwrap();
 /// assert_eq!(copy, time);
 /// }
 /// ```

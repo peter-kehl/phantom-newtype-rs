@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use crate::displayer::{DisplayProxy, DisplayerOf};
+use crate::trait_flag::{self, TraitFlags};
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
@@ -137,9 +138,12 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// }
 /// ```
 #[repr(transparent)]
-pub struct Id<Entity, Repr>(Repr, PhantomData<core::sync::atomic::AtomicPtr<Entity>>);
+pub struct Id<const TF: TraitFlags, Entity, Repr>(
+    Repr,
+    PhantomData<core::sync::atomic::AtomicPtr<Entity>>,
+);
 
-impl<Entity, Repr> Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
     /// `get` returns the underlying representation of the identifier.
     ///
     /// ```
@@ -167,14 +171,14 @@ impl<Entity, Repr> Id<Entity, Repr> {
     ///
     /// assert_eq!(*ADMIN_ID.get(), 42);
     /// ```
-    pub const fn new(repr: Repr) -> Id<Entity, Repr> {
+    pub const fn new(repr: Repr) -> Id<TF, Entity, Repr> {
         Id(repr, PhantomData)
     }
 }
 
-impl<Entity, Repr> Id<Entity, Repr>
+impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr>
 where
-    Entity: DisplayerOf<Id<Entity, Repr>>,
+    Entity: DisplayerOf<Self>, //TODO rmeove: DisplayerOf<Id<TF, Entity, Repr>>,
 {
     /// `display` provides a machanism to implement a custom display
     /// for phantom types.
@@ -204,60 +208,61 @@ where
     }
 }
 
-impl<Entity, Repr: Clone> Clone for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr: Clone> Clone for Id<TF, Entity, Repr> {
     fn clone(&self) -> Self {
         Self::from(self.get().clone())
     }
 }
 
-impl<Entity, Repr: Copy> Copy for Id<Entity, Repr> {}
+impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Entity, Repr> {}
+impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Entity, Repr> {}
 
-impl<Entity, Repr: PartialEq> PartialEq for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr: PartialEq> PartialEq for Id<TF, Entity, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.get().eq(&rhs.get())
     }
 }
 
-impl<Entity, Repr: PartialOrd> PartialOrd for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr: PartialOrd> PartialOrd for Id<TF, Entity, Repr> {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
         self.get().partial_cmp(&rhs.get())
     }
 }
 
-impl<Entity, Repr: Ord> Ord for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr: Ord> Ord for Id<TF, Entity, Repr> {
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.get().cmp(&rhs.get())
     }
 }
 
-impl<Entity, Repr: Hash> Hash for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr: Hash> Hash for Id<TF, Entity, Repr> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.get().hash(state)
     }
 }
 
-impl<Entity, Repr> From<Repr> for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr> From<Repr> for Id<TF, Entity, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
     }
 }
 
-impl<Entity, Repr: Eq> Eq for Id<Entity, Repr> {}
+impl<const TF: TraitFlags, Entity, Repr: Eq> Eq for Id<TF, Entity, Repr> {}
 
-impl<Entity, Repr: fmt::Debug> fmt::Debug for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr: fmt::Debug> fmt::Debug for Id<TF, Entity, Repr> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.get())
     }
 }
 
-impl<Entity, Repr: fmt::Display> fmt::Display for Id<Entity, Repr> {
+impl<const TF: TraitFlags, Entity, Repr: fmt::Display> fmt::Display for Id<TF, Entity, Repr> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.get())
     }
 }
 
 #[cfg(feature = "serde")]
-impl<Entity, Repr> Serialize for Id<Entity, Repr>
+impl<const TF: TraitFlags, Entity, Repr> Serialize for Id<TF, Entity, Repr>
 where
     Repr: Serialize,
 {
@@ -267,11 +272,11 @@ where
 }
 
 #[cfg(feature = "serde")]
-impl<'de, Entity, Repr> Deserialize<'de> for Id<Entity, Repr>
+impl<'de, const TF: TraitFlags, Entity, Repr> Deserialize<'de> for Id<TF, Entity, Repr>
 where
     Repr: Deserialize<'de>,
 {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Repr::deserialize(deserializer).map(Id::<Entity, Repr>::from)
+        Repr::deserialize(deserializer).map(Self::from)
     }
 }
