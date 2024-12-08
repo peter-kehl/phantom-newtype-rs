@@ -18,9 +18,10 @@ serde_json = "1"
 serde = "1"
 
 [features]
-# Whether to use nightly #![feature(generic_const_exprs)]
-# https://github.com/rust-lang/rust/issues/76560 and #![feature(adt_const_params)] //
-# https://github.com/rust-lang/rust/issues/95174
+# Whether to use nightly for
+# - #![feature(generic_const_exprs)] https://github.com/rust-lang/rust/issues/76560 and
+#   core::marker::ConstParamTy
+# - #![feature(adt_const_params)] https://github.com/rust-lang/rust/issues/95174
 unstable_generic_const_own_type = []
 
 # Whether to use nightly #![feature(core_intrinsics)] for  core::intrinsics::transmute_unchecked
