@@ -15,13 +15,13 @@
 
 use crate::amount::Amount;
 use crate::displayer::{DisplayProxy, DisplayerOf};
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// `Instant<Unit>` provides a type-safe way to keep absolute time of
 /// some events, expressed in `Unit`s (CPU ticks, seconds from epoch,

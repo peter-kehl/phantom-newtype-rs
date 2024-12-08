@@ -14,13 +14,13 @@
 // limitations under the License.
 
 use crate::displayer::{DisplayProxy, DisplayerOf};
-#[cfg(feature="serde")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::marker::PhantomData;
 use core::ops::{Add, AddAssign, Div, Mul, MulAssign, Sub, SubAssign};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// `Amount<Unit>` provides a type-safe way to keep an amount of
 /// some `Unit`.
@@ -360,14 +360,14 @@ where
 //
 // We want serialization format of `Repr` and the `Amount` to match
 // exactly, that's why we have to provide custom instances.
-#[cfg(feature="serde")]
+#[cfg(feature = "serde")]
 impl<Unit, Repr: Serialize> Serialize for Amount<Unit, Repr> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.0.serialize(serializer)
     }
 }
 
-#[cfg(feature="serde")]
+#[cfg(feature = "serde")]
 impl<'de, Unit, Repr> Deserialize<'de> for Amount<Unit, Repr>
 where
     Repr: Deserialize<'de>,

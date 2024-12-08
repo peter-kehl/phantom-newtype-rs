@@ -14,12 +14,19 @@
 // limitations under the License.
 
 #![no_std]
-
-#![cfg_attr(any(feature = "unstable_generic_const_own_type", feature="unstable_transmute_unchecked"), allow(incomplete_features))]
-
-#![cfg_attr(feature = "unstable_generic_const_own_type", feature(adt_const_params), feature(generic_const_exprs))]
-
-#![cfg_attr(feature="unstable_transmute_unchecked", feature(core_intrinsics))]
+#![cfg_attr(
+    any(
+        feature = "unstable_generic_const_own_type",
+        feature = "unstable_transmute_unchecked"
+    ),
+    allow(incomplete_features)
+)]
+#![cfg_attr(
+    feature = "unstable_generic_const_own_type",
+    feature(adt_const_params),
+    feature(generic_const_exprs)
+)]
+#![cfg_attr(feature = "unstable_transmute_unchecked", feature(core_intrinsics))]
 
 //#![feature(unsized_const_params)] // https://github.com/rust-lang/rust/issues/95174
 

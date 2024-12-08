@@ -14,12 +14,12 @@
 // limitations under the License.
 
 use crate::displayer::{DisplayProxy, DisplayerOf};
-#[cfg(feature="serde")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::marker::PhantomData;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 /// `Id<Entity, Repr>` provides a type-safe way to keep ids of
 /// entities. Note that there's no default for `Repr` type, the type
@@ -256,7 +256,7 @@ impl<Entity, Repr: fmt::Display> fmt::Display for Id<Entity, Repr> {
     }
 }
 
-#[cfg(feature="serde")]
+#[cfg(feature = "serde")]
 impl<Entity, Repr> Serialize for Id<Entity, Repr>
 where
     Repr: Serialize,
@@ -266,7 +266,7 @@ where
     }
 }
 
-#[cfg(feature="serde")]
+#[cfg(feature = "serde")]
 impl<'de, Entity, Repr> Deserialize<'de> for Id<Entity, Repr>
 where
     Repr: Deserialize<'de>,
