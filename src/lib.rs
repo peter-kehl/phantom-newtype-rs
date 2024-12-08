@@ -39,7 +39,34 @@ pub mod prelude_full;
 mod to;
 mod trait_flag;
 
-pub type Amount<Unit, Repr> = amount::Amount<{trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, Unit, Repr>;
+// Short names. Also in mod prelude:
+pub type Amount<Unit, Repr> =
+    amount::Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>;
+pub type AmountNoCopy<Unit, Repr> =
+    amount::Amount<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>;
+pub type AmountNoDefault<Unit, Repr> =
+    amount::Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>;
+pub type AmountNoCopyNoDefault<Unit, Repr> =
+    amount::Amount<{ trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT }, Unit, Repr>;
+// Long names. Also in mod prelude_full:
+pub type AmountIsCopyIsDefault<Unit, Repr> = Amount<Unit, Repr>;
+pub type AmountIsCopyNoDefault<Unit, Repr> = AmountNoDefault<Unit, Repr>;
+pub type AmountNoCopyIsDefault<Unit, Repr> = AmountNoCopy<Unit, Repr>;
+
 pub use displayer::{DisplayProxy, DisplayerOf};
+
 pub use id::Id;
-pub type Instant<Unit, Repr> = instant::Instant<{trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, Unit, Repr>;
+
+// Short names. Also in mod prelude:
+pub type Instant<Unit, Repr> =
+    instant::Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>;
+pub type InstantNoCopy<Unit, Repr> =
+    instant::Instant<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>;
+pub type InstantNoDefault<Unit, Repr> =
+    instant::Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>;
+pub type InstantNoCopyNoDefault<Unit, Repr> =
+    instant::Instant<{ trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT }, Unit, Repr>;
+// Long names. Also in mod prelude_full:
+pub type InstantIsCopyIsDefault<Unit, Repr> = Instant<Unit, Repr>;
+pub type InstantIsCopyNoDefault<Unit, Repr> = InstantNoDefault<Unit, Repr>;
+pub type InstantNoCopyIsDefault<Unit, Repr> = InstantNoCopy<Unit, Repr>;
