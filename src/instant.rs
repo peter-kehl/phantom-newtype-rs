@@ -148,6 +148,8 @@ pub struct Instant<const TF: TraitFlags, Unit, Repr>(
 );
 //type TT<X>= core::sync::Exclusive<>
 impl<const TF: TraitFlags, Unit, Repr: Copy> Instant<TF, Unit, Repr> {
+    // @TODO
+
     /// Returns the wrapped value.
     ///
     /// ```
@@ -172,7 +174,7 @@ impl<const TF: TraitFlags, Unit, Repr> Instant<TF, Unit, Repr> {
     }
 }
 
-impl<const TF: TraitFlags, Unit: Default, Repr: Copy> Instant<TF, Unit, Repr> {
+impl<const TF: TraitFlags, Unit: Default, Repr> Instant<TF, Unit, Repr> {
     /// Provides a useful shortcut to access units of an instant if
     /// they implement the `Default` trait:
     ///
@@ -217,15 +219,15 @@ where
     }
 }
 
-impl<const TF: TraitFlags, Unit, Repr: Copy> From<Repr> for Instant<TF, Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr> From<Repr> for Instant<TF, Unit, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
     }
 }
 
-impl<const TF: TraitFlags, Unit, Repr: Copy> Clone for Instant<TF, Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Clone> Clone for Instant<TF, Unit, Repr> {
     fn clone(&self) -> Self {
-        Instant(self.0, PhantomData)
+        Instant(self.0.clone(), PhantomData)
     }
 }
 
@@ -236,6 +238,21 @@ impl<Unit, Repr: Copy> Copy
 impl<Unit, Repr: Copy> Copy
     for Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>
 {
+}
+
+impl<Unit, Repr: Default> Default
+    for Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
+{
+    fn default() -> Self {
+        Self(Default::default(), PhantomData)
+    }
+}
+impl<Unit, Repr: Default> Default
+    for Instant<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
+{
+    fn default() -> Self {
+        Self(Default::default(), PhantomData)
+    }
 }
 
 impl<const TF: TraitFlags, Unit, Repr: PartialEq> PartialEq for Instant<TF, Unit, Repr> {

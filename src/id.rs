@@ -217,6 +217,21 @@ impl<const TF: TraitFlags, Entity, Repr: Clone> Clone for Id<TF, Entity, Repr> {
 impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Entity, Repr> {}
 impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Entity, Repr> {}
 
+impl<Unit, Repr: Default> Default
+    for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
+{
+    fn default() -> Self {
+        Self(Default::default(), PhantomData)
+    }
+}
+impl<Unit, Repr: Default> Default
+    for Id<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
+{
+    fn default() -> Self {
+        Self(Default::default(), PhantomData)
+    }
+}
+
 impl<const TF: TraitFlags, Entity, Repr: PartialEq> PartialEq for Id<TF, Entity, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.get().eq(&rhs.get())

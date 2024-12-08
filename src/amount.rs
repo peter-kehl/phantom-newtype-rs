@@ -152,6 +152,7 @@ pub struct Amount<const TF: TraitFlags, Unit, Repr>(
 );
 
 impl<const TF: TraitFlags, Unit, Repr: Copy> Amount<TF, Unit, Repr> {
+    // @TODO
     /// Returns the wrapped value.
     ///
     /// ```
@@ -176,7 +177,7 @@ impl<const TF: TraitFlags, Unit, Repr> Amount<TF, Unit, Repr> {
     }
 }
 
-impl<const TF: TraitFlags, Unit: Default, Repr: Copy> Amount<TF, Unit, Repr> {
+impl<const TF: TraitFlags, Unit: Default, Repr> Amount<TF, Unit, Repr> {
     // @TODO similar but without &self
     //
     /// Provides a useful shortcut to access units of an amount if
@@ -223,7 +224,7 @@ where
     }
 }
 
-impl<const TF: TraitFlags, Unit, Repr: Copy> From<Repr> for Amount<TF, Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr> From<Repr> for Amount<TF, Unit, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
     }
@@ -235,14 +236,29 @@ impl<const TF: TraitFlags, Unit, Repr: Copy> From<Repr> for Amount<TF, Unit, Rep
 // `PartialEq<Wrapper<T>>` require `T` to implement `PartialEq`, which
 // is not what we want: `T` is phantom in our case.
 
-impl<const TF: TraitFlags, Unit, Repr: Copy> Clone for Amount<TF, Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Clone> Clone for Amount<TF, Unit, Repr> {
     fn clone(&self) -> Self {
-        Amount(self.0, PhantomData)
+        Amount(self.0.clone(), PhantomData)
     }
 }
 
 impl<Unit, Repr: Copy> Copy for Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr> {}
 impl<Unit, Repr: Copy> Copy for Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr> {}
+
+impl<Unit, Repr: Default> Default
+    for Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
+{
+    fn default() -> Self {
+        Self(Default::default(), PhantomData)
+    }
+}
+impl<Unit, Repr: Default> Default
+    for Amount<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
+{
+    fn default() -> Self {
+        Self(Default::default(), PhantomData)
+    }
+}
 
 impl<const TF: TraitFlags, Unit, Repr: PartialEq> PartialEq for Amount<TF, Unit, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
