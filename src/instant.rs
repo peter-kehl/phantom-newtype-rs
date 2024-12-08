@@ -15,6 +15,7 @@
 
 use crate::amount::Amount;
 use crate::displayer::{DisplayProxy, DisplayerOf};
+use crate::trait_flag::{self, TraitFlags};
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
@@ -141,9 +142,12 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[repr(transparent)]
 //`pub struct Instant<Unit, Repr>(Repr, PhantomData<*const Unit>);
 //pub struct Instant<Unit, Repr>(Repr, PhantomData<core::sync::Exclusive<Unit>>);
-pub struct Instant<Unit, Repr>(Repr, PhantomData<core::sync::atomic::AtomicPtr<Unit>>);
+pub struct Instant<const TF: TraitFlags, Unit, Repr>(
+    Repr,
+    PhantomData<core::sync::atomic::AtomicPtr<Unit>>,
+);
 //type TT<X>= core::sync::Exclusive<>
-impl<Unit, Repr: Copy> Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Copy> Instant<TF, Unit, Repr> {
     /// Returns the wrapped value.
     ///
     /// ```
@@ -159,16 +163,16 @@ impl<Unit, Repr: Copy> Instant<Unit, Repr> {
     }
 }
 
-impl<Unit, Repr> Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr> Instant<TF, Unit, Repr> {
     /// `new` is a synonym for `from` that can be evaluated in
     /// compile time. The main use-case of this functions is defining
     /// constants.
-    pub const fn new(repr: Repr) -> Instant<Unit, Repr> {
+    pub const fn new(repr: Repr) -> Instant<TF, Unit, Repr> {
         Instant(repr, PhantomData)
     }
 }
 
-impl<Unit: Default, Repr: Copy> Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit: Default, Repr: Copy> Instant<TF, Unit, Repr> {
     /// Provides a useful shortcut to access units of an instant if
     /// they implement the `Default` trait:
     ///
@@ -186,9 +190,9 @@ impl<Unit: Default, Repr: Copy> Instant<Unit, Repr> {
     }
 }
 
-impl<Unit, Repr> Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Instant<TF, Unit, Repr>
 where
-    Unit: DisplayerOf<Instant<Unit, Repr>>,
+    Unit: DisplayerOf<Instant<TF, Unit, Repr>>,
 {
     /// `display` provides a machanism to implement a custom display
     /// for phantom types.
@@ -213,103 +217,114 @@ where
     }
 }
 
-impl<Unit, Repr: Copy> From<Repr> for Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Copy> From<Repr> for Instant<TF, Unit, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
     }
 }
 
-impl<Unit, Repr: Copy> Clone for Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Copy> Clone for Instant<TF, Unit, Repr> {
     fn clone(&self) -> Self {
         Instant(self.0, PhantomData)
     }
 }
 
-impl<Unit, Repr: Copy> Copy for Instant<Unit, Repr> {}
+impl<Unit, Repr: Copy> Copy
+    for Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
+{
+}
+impl<Unit, Repr: Copy> Copy
+    for Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>
+{
+}
 
-impl<Unit, Repr: PartialEq> PartialEq for Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: PartialEq> PartialEq for Instant<TF, Unit, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.0.eq(&rhs.0)
     }
 }
 
-impl<Unit, Repr: Eq> Eq for Instant<Unit, Repr> {}
+impl<const TF: TraitFlags, Unit, Repr: Eq> Eq for Instant<TF, Unit, Repr> {}
 
-impl<Unit, Repr: PartialOrd> PartialOrd for Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: PartialOrd> PartialOrd for Instant<TF, Unit, Repr> {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
         self.0.partial_cmp(&rhs.0)
     }
 }
 
-impl<Unit, Repr: Ord> Ord for Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Ord> Ord for Instant<TF, Unit, Repr> {
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.0.cmp(&rhs.0)
     }
 }
 
-impl<Unit, Repr: Hash> Hash for Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Hash> Hash for Instant<TF, Unit, Repr> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state)
     }
 }
 
-impl<Unit, Repr, Repr2> Add<Amount<Unit, Repr2>> for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr, Repr2> Add<Amount<TF, Unit, Repr2>>
+    for Instant<TF, Unit, Repr>
 where
     Repr: AddAssign<Repr2> + Copy,
     Repr2: Copy,
 {
     type Output = Self;
-    fn add(mut self, rhs: Amount<Unit, Repr2>) -> Self {
+    fn add(mut self, rhs: Amount<TF, Unit, Repr2>) -> Self {
         self.add_assign(rhs);
         self
     }
 }
 
-impl<Unit, Repr, Repr2> AddAssign<Amount<Unit, Repr2>> for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr, Repr2> AddAssign<Amount<TF, Unit, Repr2>>
+    for Instant<TF, Unit, Repr>
 where
     Repr: AddAssign<Repr2> + Copy,
     Repr2: Copy,
 {
-    fn add_assign(&mut self, rhs: Amount<Unit, Repr2>) {
+    fn add_assign(&mut self, rhs: Amount<TF, Unit, Repr2>) {
         self.0 += rhs.get()
     }
 }
 
-impl<Unit, Repr, Repr2> SubAssign<Amount<Unit, Repr2>> for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr, Repr2> SubAssign<Amount<TF, Unit, Repr2>>
+    for Instant<TF, Unit, Repr>
 where
     Repr: SubAssign<Repr2> + Copy,
     Repr2: Copy,
 {
-    fn sub_assign(&mut self, rhs: Amount<Unit, Repr2>) {
+    fn sub_assign(&mut self, rhs: Amount<TF, Unit, Repr2>) {
         self.0 -= rhs.get()
     }
 }
 
-impl<Unit, Repr> Sub for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Sub for Instant<TF, Unit, Repr>
 where
     Repr: Sub + Copy,
 {
-    type Output = Amount<Unit, <Repr as Sub>::Output>;
+    type Output = Amount<TF, Unit, <Repr as Sub>::Output>;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        Amount::<Unit, <Repr as Sub>::Output>::new(self.0 - rhs.0)
+        Amount::<TF, Unit, <Repr as Sub>::Output>::new(self.0 - rhs.0)
     }
 }
 
-impl<Unit, Repr, Repr2> Sub<Amount<Unit, Repr2>> for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr, Repr2> Sub<Amount<TF, Unit, Repr2>>
+    for Instant<TF, Unit, Repr>
 where
     Repr: SubAssign<Repr2> + Copy,
     Repr2: Copy,
 {
     type Output = Self;
 
-    fn sub(mut self, rhs: Amount<Unit, Repr2>) -> Self {
+    fn sub(mut self, rhs: Amount<TF, Unit, Repr2>) -> Self {
         self.sub_assign(rhs);
         self
     }
 }
 
-impl<Unit, Repr> MulAssign<Repr> for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> MulAssign<Repr> for Instant<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
 {
@@ -318,7 +333,7 @@ where
     }
 }
 
-impl<Unit, Repr> Mul<Repr> for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Mul<Repr> for Instant<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
 {
@@ -330,7 +345,7 @@ where
     }
 }
 
-impl<Unit, Repr> Div<Self> for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Div<Self> for Instant<TF, Unit, Repr>
 where
     Repr: Div<Repr> + Copy,
 {
@@ -341,7 +356,7 @@ where
     }
 }
 
-impl<Unit, Repr> fmt::Debug for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> fmt::Debug for Instant<TF, Unit, Repr>
 where
     Repr: fmt::Debug,
 {
@@ -350,7 +365,7 @@ where
     }
 }
 
-impl<Unit, Repr> fmt::Display for Instant<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> fmt::Display for Instant<TF, Unit, Repr>
 where
     Repr: fmt::Display,
 {
@@ -360,25 +375,25 @@ where
 }
 
 #[cfg(feature = "serde")]
-impl<Unit, Repr: Serialize> Serialize for Instant<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Serialize> Serialize for Instant<TF, Unit, Repr> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.0.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde")]
-impl<'de, Unit, Repr> Deserialize<'de> for Instant<Unit, Repr>
+impl<'de, const TF: TraitFlags, Unit, Repr> Deserialize<'de> for Instant<TF, Unit, Repr>
 where
     Repr: Deserialize<'de>,
 {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Repr::deserialize(deserializer).map(Instant::<Unit, Repr>::new)
+        Repr::deserialize(deserializer).map(Self::new)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::*;
 
     #[test]
     fn test_complex_instant_arithmetics() {

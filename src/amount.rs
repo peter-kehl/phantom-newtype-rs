@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use crate::displayer::{DisplayProxy, DisplayerOf};
+use crate::trait_flag::{self, TraitFlags};
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
@@ -145,9 +146,12 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// assert_eq!(N, *n_from_thread);
 /// ```
 #[repr(transparent)]
-pub struct Amount<Unit, Repr>(Repr, PhantomData<core::sync::atomic::AtomicPtr<Unit>>);
+pub struct Amount<const TF: TraitFlags, Unit, Repr>(
+    Repr,
+    PhantomData<core::sync::atomic::AtomicPtr<Unit>>,
+);
 
-impl<Unit, Repr: Copy> Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Copy> Amount<TF, Unit, Repr> {
     /// Returns the wrapped value.
     ///
     /// ```
@@ -163,16 +167,18 @@ impl<Unit, Repr: Copy> Amount<Unit, Repr> {
     }
 }
 
-impl<Unit, Repr> Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr> Amount<TF, Unit, Repr> {
     /// `new` is a synonym for `from` that can be evaluated in
     /// compile time. The main use-case of this functions is defining
     /// constants.
-    pub const fn new(repr: Repr) -> Amount<Unit, Repr> {
-        Amount(repr, PhantomData)
+    pub const fn new(repr: Repr) -> Self {
+        Self(repr, PhantomData)
     }
 }
 
-impl<Unit: Default, Repr: Copy> Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit: Default, Repr: Copy> Amount<TF, Unit, Repr> {
+    // @TODO similar but without &self
+    //
     /// Provides a useful shortcut to access units of an amount if
     /// they implement the `Default` trait:
     ///
@@ -190,9 +196,9 @@ impl<Unit: Default, Repr: Copy> Amount<Unit, Repr> {
     }
 }
 
-impl<Unit, Repr> Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Amount<TF, Unit, Repr>
 where
-    Unit: DisplayerOf<Amount<Unit, Repr>>,
+    Unit: DisplayerOf<Self>, //@TODO cleanup: Amount<TF, Unit, Repr>>,
 {
     /// `display` provides a machanism to implement a custom display
     /// for phantom types.
@@ -217,7 +223,7 @@ where
     }
 }
 
-impl<Unit, Repr: Copy> From<Repr> for Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Copy> From<Repr> for Amount<TF, Unit, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
     }
@@ -229,41 +235,42 @@ impl<Unit, Repr: Copy> From<Repr> for Amount<Unit, Repr> {
 // `PartialEq<Wrapper<T>>` require `T` to implement `PartialEq`, which
 // is not what we want: `T` is phantom in our case.
 
-impl<Unit, Repr: Copy> Clone for Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Copy> Clone for Amount<TF, Unit, Repr> {
     fn clone(&self) -> Self {
         Amount(self.0, PhantomData)
     }
 }
 
-impl<Unit, Repr: Copy> Copy for Amount<Unit, Repr> {}
+impl<Unit, Repr: Copy> Copy for Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr> {}
+impl<Unit, Repr: Copy> Copy for Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr> {}
 
-impl<Unit, Repr: PartialEq> PartialEq for Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: PartialEq> PartialEq for Amount<TF, Unit, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.0.eq(&rhs.0)
     }
 }
 
-impl<Unit, Repr: Eq> Eq for Amount<Unit, Repr> {}
+impl<const TF: TraitFlags, Unit, Repr: Eq> Eq for Amount<TF, Unit, Repr> {}
 
-impl<Unit, Repr: PartialOrd> PartialOrd for Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: PartialOrd> PartialOrd for Amount<TF, Unit, Repr> {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
         self.0.partial_cmp(&rhs.0)
     }
 }
 
-impl<Unit, Repr: Ord> Ord for Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Ord> Ord for Amount<TF, Unit, Repr> {
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.0.cmp(&rhs.0)
     }
 }
 
-impl<Unit, Repr: Hash> Hash for Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Hash> Hash for Amount<TF, Unit, Repr> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state)
     }
 }
 
-impl<Unit, Repr> Add for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Add for Amount<TF, Unit, Repr>
 where
     Repr: AddAssign + Copy,
 {
@@ -274,7 +281,7 @@ where
     }
 }
 
-impl<Unit, Repr> AddAssign for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> AddAssign for Amount<TF, Unit, Repr>
 where
     Repr: AddAssign + Copy,
 {
@@ -283,7 +290,7 @@ where
     }
 }
 
-impl<Unit, Repr> SubAssign for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> SubAssign for Amount<TF, Unit, Repr>
 where
     Repr: SubAssign + Copy,
 {
@@ -292,7 +299,7 @@ where
     }
 }
 
-impl<Unit, Repr> Sub for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Sub for Amount<TF, Unit, Repr>
 where
     Repr: SubAssign + Copy,
 {
@@ -304,7 +311,7 @@ where
     }
 }
 
-impl<Unit, Repr> MulAssign<Repr> for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> MulAssign<Repr> for Amount<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
 {
@@ -313,7 +320,7 @@ where
     }
 }
 
-impl<Unit, Repr> Mul<Repr> for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Mul<Repr> for Amount<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
 {
@@ -325,7 +332,7 @@ where
     }
 }
 
-impl<Unit, Repr> Div<Self> for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> Div<Self> for Amount<TF, Unit, Repr>
 where
     Repr: Div<Repr> + Copy,
 {
@@ -336,7 +343,7 @@ where
     }
 }
 
-impl<Unit, Repr> fmt::Debug for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> fmt::Debug for Amount<TF, Unit, Repr>
 where
     Repr: fmt::Debug,
 {
@@ -345,7 +352,7 @@ where
     }
 }
 
-impl<Unit, Repr> fmt::Display for Amount<Unit, Repr>
+impl<const TF: TraitFlags, Unit, Repr> fmt::Display for Amount<TF, Unit, Repr>
 where
     Repr: fmt::Display,
 {
@@ -361,18 +368,18 @@ where
 // We want serialization format of `Repr` and the `Amount` to match
 // exactly, that's why we have to provide custom instances.
 #[cfg(feature = "serde")]
-impl<Unit, Repr: Serialize> Serialize for Amount<Unit, Repr> {
+impl<const TF: TraitFlags, Unit, Repr: Serialize> Serialize for Amount<TF, Unit, Repr> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.0.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde")]
-impl<'de, Unit, Repr> Deserialize<'de> for Amount<Unit, Repr>
+impl<'de, const TF: TraitFlags, Unit, Repr> Deserialize<'de> for Amount<TF, Unit, Repr>
 where
     Repr: Deserialize<'de>,
 {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Repr::deserialize(deserializer).map(Amount::<Unit, Repr>::new)
+        Repr::deserialize(deserializer).map(Self::new)
     }
 }

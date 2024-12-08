@@ -34,12 +34,12 @@ mod amount;
 mod displayer;
 mod id;
 mod instant;
-//pub mod prelude;
-//pub mod prelude_full;
-//mod to;
-//mod trait_flag;
+pub mod prelude;
+pub mod prelude_full;
+mod to;
+mod trait_flag;
 
-pub use amount::Amount;
+pub type Amount<Unit, Repr> = amount::Amount<{trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, Unit, Repr>;
 pub use displayer::{DisplayProxy, DisplayerOf};
 pub use id::Id;
-pub use instant::Instant;
+pub type Instant<Unit, Repr> = instant::Instant<{trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, Unit, Repr>;
