@@ -23,7 +23,7 @@ use core::marker::PhantomData;
 ///
 /// This can't activate any blanket `impl` of [core::ops::Deref], because anything like the
 /// following fails to compile:
-/// ```rust
+/// ```ignore
 /// impl<T, Repr, O> Deref for Amm<T, Repr>
 /// where
 /// Self: As<O> {
