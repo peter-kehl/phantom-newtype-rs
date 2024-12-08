@@ -1,5 +1,14 @@
-#[cfg(feature = "unstable_generic_const_own_type")]
-use core::marker::ConstParamTy;
+#[derive(Eq, PartialEq, PartialOrd, core::fmt::Debug)]
+#[cfg_attr(
+    feature = "unstable_generic_const_own_type",
+    derive(core::marker::ConstParamTy)
+)]
+pub enum TraitFlagsValues {
+    TRAIT_FLAGS_NO_COPY_NO_DEFAULT,
+    TRAIT_FLAGS_IS_COPY_NO_DEFAULT,
+    TRAIT_FLAGS_NO_COPY_IS_DEFAULT,
+    TRAIT_FLAGS_IS_COPY_IS_DEFAULT,
+}
 
 /// Use for a const generic `TRAIT_FLAGS` parameter to indicate some optional functionality of
 /// [Amount], [Id] or [Instant].
@@ -15,22 +24,17 @@ use core::marker::ConstParamTy;
 #[cfg(not(feature = "unstable_generic_const_own_type"))]
 pub type TraitFlags = u8;
 #[cfg(feature = "unstable_generic_const_own_type")]
-#[derive(Eq, PartialEq, PartialOrd, ConstParamTy, core::fmt::Debug)]
-pub struct TraitFlags(u8);
+pub type TraitFlags = TraitFlagsValues;
 
-const fn trait_flags_new(tf: u8) -> TraitFlags {
+const fn trait_flags_new(tfv: TraitFlagsValues) -> TraitFlags {
     #[cfg(not(feature = "unstable_generic_const_own_type"))]
     {
-        tf
+        tfv as u8
     }
     #[cfg(feature = "unstable_generic_const_own_type")]
     {
-        const MAX_FLAG_BITS: u8 = 0b11;
-        if tf > MAX_FLAG_BITS {
-            panic!("The parameter is higher than MAX_FLAG_BITS.");
-        }
-
-        TraitFlags(tf)
+        // See also https://doc.rust-lang.org/nightly/reference/items/enumerations.html#implicit-discriminants and https://doc.rust-lang.org/nightly/core/mem/fn.discriminant.html#accessing-the-numeric-value-of-the-discriminant
+        tfv
     }
 }
 
@@ -38,16 +42,19 @@ const TRAIT_FLAG_BIT_COPY: u8 = 0b1;
 const TRAIT_FLAG_BIT_DEFAULT: u8 = 0b10;
 
 pub const TRAIT_FLAGS_IS_COPY_IS_DEFAULT: TraitFlags =
-    trait_flags_new(TRAIT_FLAG_BIT_COPY | TRAIT_FLAG_BIT_DEFAULT);
-pub const TRAIT_FLAGS_IS_COPY_NO_DEFAULT: TraitFlags = trait_flags_new(TRAIT_FLAG_BIT_COPY);
-pub const TRAIT_FLAGS_NO_COPY_IS_DEFAULT: TraitFlags = trait_flags_new(TRAIT_FLAG_BIT_DEFAULT);
-pub const TRAIT_FLAGS_NO_COPY_NO_DEFAULT: TraitFlags = trait_flags_new(0);
+    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_IS_COPY_IS_DEFAULT);
+pub const TRAIT_FLAGS_IS_COPY_NO_DEFAULT: TraitFlags =
+    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_IS_COPY_NO_DEFAULT);
+pub const TRAIT_FLAGS_NO_COPY_IS_DEFAULT: TraitFlags =
+    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_NO_COPY_IS_DEFAULT);
+pub const TRAIT_FLAGS_NO_COPY_NO_DEFAULT: TraitFlags =
+    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_NO_COPY_NO_DEFAULT);
 
 const fn trait_flags_bits(tf: TraitFlags) -> u8 {
     #[cfg(not(feature = "unstable_generic_const_own_type"))]
     return tf;
     #[cfg(feature = "unstable_generic_const_own_type")]
-    return tf.0;
+    return tf as u8;
 }
 
 const fn is_copy(flags: TraitFlags) -> bool {
@@ -76,15 +83,12 @@ mod test_flags {
 }
 
 // Move to Amount, Instant:
-#[derive(Clone)]
-struct S2<const TF: TraitFlags> {}
-
-impl Copy for S2<TRAIT_FLAGS_IS_COPY_IS_DEFAULT> {}
-impl Copy for S2<TRAIT_FLAGS_IS_COPY_NO_DEFAULT> {}
-
+// TODO
+/*
 /// Internal indicator trait. It signals that we implement [Default] for this type. That prevents
 /// repetition of `impl Default` for various const generics.
 trait ImplementDefault {}
+
 /// Blanked implementation of [Default], indicated by [ImplementDefault].
 impl<const TF: TraitFlags> Default for S2<TF>
 where
@@ -96,13 +100,4 @@ where
 }
 impl ImplementDefault for S2<TRAIT_FLAGS_IS_COPY_IS_DEFAULT> {}
 impl ImplementDefault for S2<TRAIT_FLAGS_NO_COPY_IS_DEFAULT> {}
-
-pub fn s2_default() -> S2<TRAIT_FLAGS_IS_COPY_IS_DEFAULT> {
-    let outp = Default::default();
-    outp
-}
-
-pub fn s2_no_copy(inp: S2<TRAIT_FLAGS_NO_COPY_IS_DEFAULT>) -> S2<TRAIT_FLAGS_NO_COPY_IS_DEFAULT> {
-    let outp = inp;
-    outp
-}
+*/
