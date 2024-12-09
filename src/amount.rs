@@ -45,6 +45,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// amounts more convenient.  For example, you can compare amounts:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Amount;
 ///
 /// enum Apples {}
@@ -63,6 +68,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// You can do simple arithmetics with amounts:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Amount;
 ///
 /// enum Apples {}
@@ -80,6 +90,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// scalar or divide amounts:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Amount;
 ///
 /// enum Apples {}
@@ -94,6 +109,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// `Amount` instead of `u64` doesn't incur any runtime penalty:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Amount;
 ///
 /// enum Meters {}
@@ -106,6 +126,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// forms of `Amount<Unit, Repr>` and `Repr` are identical.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// #[cfg(feature = "serde")] {
 /// use phantom_newtype::Amount;
 /// use serde::{Serialize, Deserialize};
@@ -124,6 +149,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// You can also declare constants of `Amount<Unit, Repr>` using `new`
 /// function:
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Amount;
 /// enum Meters {}
 /// type Distance = Amount<Meters, u64>;
@@ -136,6 +166,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// matter which `Unit` is used.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Amount;
 ///
 /// type Cell = core::cell::RefCell<i64>;
@@ -156,6 +191,11 @@ impl<const TF: TraitFlags, Unit, Repr: Copy> Amount<TF, Unit, Repr> {
     /// Returns the wrapped value.
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Amount;
     ///
     /// enum Apples {}
@@ -184,6 +224,11 @@ impl<const TF: TraitFlags, Unit: Default, Repr> Amount<TF, Unit, Repr> {
     /// they implement the `Default` trait:
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Amount;
     ///
     /// #[derive(Debug, Default)]

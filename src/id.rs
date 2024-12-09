@@ -61,6 +61,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// `Id` is cheap to copy if `Repr` is:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Id;
 ///
 /// enum Message {}
@@ -75,6 +80,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// this property:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Id;
 /// use std::collections::HashMap;
 ///
@@ -94,6 +104,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// semantic value in comparing ids.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use std::collections::BTreeMap;
 /// use phantom_newtype::Id;
 ///
@@ -112,6 +127,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// matter which `Entity` is used.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Id;
 ///
 /// type Cell = core::cell::RefCell<i64>;
@@ -126,6 +146,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// forms of `Id<Entity, Repr>` and `Repr` are identical.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// #[cfg(feature = "serde")] {
 /// use phantom_newtype::Id;
 /// use serde::{Serialize, Deserialize};
@@ -147,6 +172,11 @@ impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
     /// `get` returns the underlying representation of the identifier.
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Id;
     ///
     /// enum User {}
@@ -163,6 +193,11 @@ impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
     /// constants:
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Id;
     /// enum User {}
     /// type UserId = Id<User, u64>;

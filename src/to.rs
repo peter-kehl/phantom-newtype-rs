@@ -23,7 +23,7 @@ use core::marker::PhantomData;
 ///
 /// This can't activate any blanket `impl` of [core::ops::Deref], because anything like the
 /// following fails to compile:
-/// ```ignore
+/// ```compile_fail
 /// impl<T, Repr, O> Deref for Amm<T, Repr>
 /// where
 /// Self: As<O> {
@@ -31,13 +31,18 @@ use core::marker::PhantomData;
 /// }
 /// ```
 pub trait As<T> {}
+pub trait AsMut<T> {}
 pub trait AsFrom<T> {}
+pub trait AsFromMut<T> {}
+
 pub struct Amm<T, Repr>(PhantomData<core::sync::atomic::AtomicPtr<T>>, Repr);
 
-/*pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
+#[cfg(feature = "unstable_transmute_unchecked")]
+pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
     core::intrinsics::transmute_unchecked(x)
-}*/
+}
 
+#[cfg(not(feature = "unstable_transmute_unchecked"))]
 /// Thanks to Helix (noop_noob).
 pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
     use core::mem::ManuallyDrop;
@@ -57,6 +62,8 @@ pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
 pub trait To<O, Repr> {
     fn to(self) -> Amm<O, Repr>;
     fn to_ref(&self) -> &Amm<O, Repr>;
+}
+pub trait ToMut<O, Repr> {
     fn to_mut(&mut self) -> &mut Amm<O, Repr>;
 }
 impl<T, Repr, O> To<O, Repr> for Amm<T, Repr>
@@ -69,6 +76,11 @@ where
     fn to_ref(&self) -> &Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
+}
+impl<T, Repr, O> ToMut<O, Repr> for Amm<T, Repr>
+where
+    Self: AsMut<O>, // this doesn't help: ,Repr: Sized
+{
     fn to_mut(&mut self) -> &mut Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
@@ -79,6 +91,8 @@ where
 pub trait ToFrom<O, Repr> {
     fn to(self) -> Amm<O, Repr>;
     fn to_ref(&self) -> &Amm<O, Repr>;
+}
+pub trait ToFromMut<O, Repr> {
     fn to_mut(&mut self) -> &mut Amm<O, Repr>;
 }
 impl<T, Repr, O> ToFrom<O, Repr> for Amm<T, Repr>
@@ -91,6 +105,11 @@ where
     fn to_ref(&self) -> &Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
+}
+impl<T, Repr, O> ToFromMut<O, Repr> for Amm<T, Repr>
+where
+    Amm<O, Repr>: AsFromMut<T>,
+{
     fn to_mut(&mut self) -> &mut Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }

@@ -31,6 +31,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// You can compare instants:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Instant;
 ///
 /// enum SecondsFromEpoch {}
@@ -51,6 +56,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// * Add/subtract amount of units to/from an instant to get another instant.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::{Amount, Instant};
 ///
 /// enum SecondsFromEpoch {}
@@ -71,6 +81,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// can scale them by a scalar or divide to get a scalar back:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Instant;
 ///
 /// enum SecondsFromEpoch {}
@@ -86,6 +101,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// `Instant` instead of `u64` doesn't incur any runtime penalty:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Instant;
 ///
 /// enum SecondsFromEpoch {}
@@ -118,6 +138,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// You can also declare constants of `Instant<Unit, Repr>` using `new`
 /// function:
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Instant;
 ///
 /// enum SecondsFromEpoch {}
@@ -130,6 +155,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// matter which `Unit` is used.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Instant;
 ///
 /// type Cell = core::cell::RefCell<i64>;
@@ -153,6 +183,11 @@ impl<const TF: TraitFlags, Unit, Repr: Copy> Instant<TF, Unit, Repr> {
     /// Returns the wrapped value.
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Instant;
     ///
     /// enum Apples {}
@@ -179,6 +214,11 @@ impl<const TF: TraitFlags, Unit: Default, Repr> Instant<TF, Unit, Repr> {
     /// they implement the `Default` trait:
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Instant;
     ///
     /// #[derive(Debug, Default)]
