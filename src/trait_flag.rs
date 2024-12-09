@@ -1,60 +1,19 @@
 #[derive(Eq, PartialEq, PartialOrd, core::fmt::Debug)]
-#[cfg_attr(
-    feature = "unstable_generic_const_own_type",
-    derive(core::marker::ConstParamTy)
-)]
-pub enum TraitFlagsValues {
+#[derive(core::marker::ConstParamTy)]
+pub enum TraitFlags {
     TRAIT_FLAGS_NO_COPY_NO_DEFAULT,
     TRAIT_FLAGS_IS_COPY_NO_DEFAULT,
     TRAIT_FLAGS_NO_COPY_IS_DEFAULT,
     TRAIT_FLAGS_IS_COPY_IS_DEFAULT,
 }
 
-/// Use for a const generic `TRAIT_FLAGS` parameter to indicate some optional functionality of
-/// [Amount], [Id] or [Instant].
-///
-/// Do not hard code any values. Instead, use `TRAIT_FLAGS_*` constants (like
-/// [TRAIT_FLAGS_IS_COPY_IS_DEFAULT]). Even better, use the type aliases like [Amount],
-/// [AmountNoCopy], [AmountNoCopyNoDefault].
-///
-/// Subject to change. Once `#![feature(adt_const_params)]` becomes stable`:
-/// [rust-lang/rust/issues/95174](https://github.com/rust-lang/rust/issues/95174), we switch to
-/// using a proper struct here (which will derive [core::marker::ConstParamTy], derive/implement
-/// [PartialEq] and [Eq]).
-#[cfg(not(feature = "unstable_generic_const_own_type"))]
-pub type TraitFlags = u8;
-#[cfg(feature = "unstable_generic_const_own_type")]
-pub type TraitFlags = TraitFlagsValues;
-
-const fn trait_flags_new(tfv: TraitFlagsValues) -> TraitFlags {
-    #[cfg(not(feature = "unstable_generic_const_own_type"))]
-    {
-        tfv as u8
-    }
-    #[cfg(feature = "unstable_generic_const_own_type")]
-    {
-        // See also https://doc.rust-lang.org/nightly/reference/items/enumerations.html#implicit-discriminants and https://doc.rust-lang.org/nightly/core/mem/fn.discriminant.html#accessing-the-numeric-value-of-the-discriminant
-        tfv
-    }
-}
 
 const TRAIT_FLAG_BIT_COPY: u8 = 0b1;
 const TRAIT_FLAG_BIT_DEFAULT: u8 = 0b10;
 
-pub const TRAIT_FLAGS_IS_COPY_IS_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_IS_COPY_IS_DEFAULT);
-pub const TRAIT_FLAGS_IS_COPY_NO_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_IS_COPY_NO_DEFAULT);
-pub const TRAIT_FLAGS_NO_COPY_IS_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_NO_COPY_IS_DEFAULT);
-pub const TRAIT_FLAGS_NO_COPY_NO_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_NO_COPY_NO_DEFAULT);
 
 const fn trait_flags_bits(tf: TraitFlags) -> u8 {
-    #[cfg(not(feature = "unstable_generic_const_own_type"))]
-    return tf;
-    #[cfg(feature = "unstable_generic_const_own_type")]
-    return tf as u8;
+    tf as u8
 }
 
 const fn is_copy(flags: TraitFlags) -> bool {
@@ -70,15 +29,15 @@ mod test_flags {
 
     #[test]
     fn all() {
-        assert_eq!(is_copy(TRAIT_FLAGS_IS_COPY_IS_DEFAULT), true);
-        assert_eq!(is_copy(TRAIT_FLAGS_IS_COPY_NO_DEFAULT), true);
-        assert_eq!(is_copy(TRAIT_FLAGS_NO_COPY_IS_DEFAULT), false);
-        assert_eq!(is_copy(TRAIT_FLAGS_NO_COPY_NO_DEFAULT), false);
+        assert_eq!(is_copy(TraitFlags::TRAIT_FLAGS_IS_COPY_IS_DEFAULT), true);
+        assert_eq!(is_copy(TraitFlags::TRAIT_FLAGS_IS_COPY_NO_DEFAULT), true);
+        assert_eq!(is_copy(TraitFlags::TRAIT_FLAGS_NO_COPY_IS_DEFAULT), false);
+        assert_eq!(is_copy(TraitFlags::TRAIT_FLAGS_NO_COPY_NO_DEFAULT), false);
 
-        assert_eq!(is_default(TRAIT_FLAGS_IS_COPY_IS_DEFAULT), true);
-        assert_eq!(is_default(TRAIT_FLAGS_NO_COPY_IS_DEFAULT), true);
-        assert_eq!(is_default(TRAIT_FLAGS_IS_COPY_NO_DEFAULT), false);
-        assert_eq!(is_default(TRAIT_FLAGS_NO_COPY_NO_DEFAULT), false);
+        assert_eq!(is_default(TraitFlags::TRAIT_FLAGS_IS_COPY_IS_DEFAULT), true);
+        assert_eq!(is_default(TraitFlags::TRAIT_FLAGS_NO_COPY_IS_DEFAULT), true);
+        assert_eq!(is_default(TraitFlags::TRAIT_FLAGS_IS_COPY_NO_DEFAULT), false);
+        assert_eq!(is_default(TraitFlags::TRAIT_FLAGS_NO_COPY_NO_DEFAULT), false);
     }
 }
 

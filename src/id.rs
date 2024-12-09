@@ -1,18 +1,3 @@
-// Copyright 2019 DFINITY
-// Copyright 2023,2024 Peter Lyons Kehl
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 use crate::displayer::{DisplayProxy, DisplayerOf};
 use crate::trait_flag::{self, TraitFlags};
 use core::cmp::Ordering;
@@ -243,24 +228,42 @@ where
     }
 }
 
+pub fn test_display<const TF: TraitFlags, Entity, Repr>(id: Id<TF, Entity, Repr>)
+{
+    use crate::{Id, DisplayerOf};
+    use core::fmt;
+
+    enum Message {}
+    type MessageId = Id<Message, [u8; 32]>;
+
+    impl DisplayerOf<MessageId> for Message {
+    fn display(id: &MessageId, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        id.get().iter().try_for_each(|b| write!(f, "{:02x}", b))
+    }
+    }
+
+    let arr = [1u8; 32];
+    MessageId::from(arr).display();
+}
+
 impl<const TF: TraitFlags, Entity, Repr: Clone> Clone for Id<TF, Entity, Repr> {
     fn clone(&self) -> Self {
         Self::from(self.get().clone())
     }
 }
 
-impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Entity, Repr> {}
-impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Entity, Repr> {}
+impl<Entity, Repr: Copy> Copy for Id<{ TraitFlags::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Entity, Repr> {}
+impl<Entity, Repr: Copy> Copy for Id<{ TraitFlags::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Entity, Repr> {}
 
 impl<Unit, Repr: Default> Default
-    for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
+    for Id<{ TraitFlags::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
 {
     fn default() -> Self {
         Self(Default::default(), PhantomData)
     }
 }
 impl<Unit, Repr: Default> Default
-    for Id<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
+    for Id<{ TraitFlags::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
 {
     fn default() -> Self {
         Self(Default::default(), PhantomData)
