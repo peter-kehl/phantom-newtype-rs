@@ -1,196 +1,19 @@
 use crate::displayer::{DisplayProxy, DisplayerOf};
-use crate::trait_flag::{self, TraitFlags};
+use crate::trait_flag:: TraitFlags;
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::marker::PhantomData;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-/// `Id<Entity, Repr>` provides a type-safe way to keep ids of
-/// entities. Note that there's no default for `Repr` type, the type
-/// of the identifier should be always provided explicitly.
-///
-/// Example:
-///
-/// ```
-/// use phantom_newtype::Id;
-///
-/// struct User {
-///   id: Id<User, u64>,
-///   name: String,
-///   posts: Vec<Id<Post, u64>>,
-/// }
-///
-/// struct Post {
-///   id: Id<Post, u64>,
-///   title: String,
-/// }
-/// ```
-///
-/// `Enity` doesn't have to be a struct, any type will do. It's just a
-/// marker that differentiate incompatible ids.
-///
-/// ```compile_fail
-/// use phantom_newtype::Id;
-///
-/// enum Recepient {}
-/// enum Message {}
-///
-/// type RecepientId = Id<Recepient, u64>;
-/// type MessageId = Id<Message, u64>;
-///
-/// assert_eq!(RecepientId::from(15), MessageId::from(15));
-/// ```
-///
-/// `Id` is cheap to copy if `Repr` is:
-///
-/// ```
-/// #![cfg_attr(
-///     feature = "unstable_generic_const_own_type",
-///     feature(generic_const_exprs)
-/// )]
-///
-/// use phantom_newtype::Id;
-///
-/// enum Message {}
-/// type MessageId = Id<Message, u64>;
-///
-/// let x = MessageId::from(5);
-/// let y = x;
-/// assert_eq!(x, y);
-/// ```
-///
-/// `Id` can be used as a key in a hash map as long as `Repr` has
-/// this property:
-///
-/// ```
-/// #![cfg_attr(
-///     feature = "unstable_generic_const_own_type",
-///     feature(generic_const_exprs)
-/// )]
-///
-/// use phantom_newtype::Id;
-/// use std::collections::HashMap;
-///
-/// #[derive(PartialEq, Debug)]
-/// struct User {}
-/// type UserId = Id<User, String>;
-///
-/// let mut users_by_id = HashMap::new();
-/// let id = UserId::from("john".to_string());
-/// users_by_id.insert(id.clone(), User {});
-///
-/// assert!(users_by_id.get(&id).is_some());
-/// ```
-///
-/// Ids are ordered if the `Repr` is. Note that this is mostly useful
-/// e.g. for storing Ids in a `BTreeMap`, there is usually little
-/// semantic value in comparing ids.
-///
-/// ```
-/// #![cfg_attr(
-///     feature = "unstable_generic_const_own_type",
-///     feature(generic_const_exprs)
-/// )]
-///
-/// use std::collections::BTreeMap;
-/// use phantom_newtype::Id;
-///
-/// #[derive(PartialEq, Debug)]
-/// struct User {}
-/// type UserId = Id<User, u64>;
-///
-/// let mut map = BTreeMap::new();
-/// let id = UserId::from(5);
-/// map.insert(id.clone(), User {});
-///
-/// assert!(map.get(&id).is_some());
-/// ```
-///
-/// Ids can be sent between threads if the `Repr` allows it, no
-/// matter which `Entity` is used.
-///
-/// ```
-/// #![cfg_attr(
-///     feature = "unstable_generic_const_own_type",
-///     feature(generic_const_exprs)
-/// )]
-///
-/// use phantom_newtype::Id;
-///
-/// type Cell = core::cell::RefCell<i64>;
-/// type CellId = Id<Cell, i64>;
-/// const ID: CellId = CellId::new(42);
-///
-/// let id_from_thread = std::thread::spawn(|| &ID).join().unwrap();
-/// assert_eq!(ID, *id_from_thread);
-/// ```
-///
-/// Ids can be serialized and deserialized with `serde`. Serialized
-/// forms of `Id<Entity, Repr>` and `Repr` are identical.
-///
-/// ```
-/// #![cfg_attr(
-///     feature = "unstable_generic_const_own_type",
-///     feature(generic_const_exprs)
-/// )]
-///
-/// #[cfg(feature = "serde")] {
-/// use phantom_newtype::Id;
-/// use serde::{Serialize, Deserialize};
-/// use serde_json;
-/// enum User {}
-///
-/// let repr: u64 = 10;
-/// let user_id = Id::<User, u64>::from(repr);
-/// assert_eq!(serde_json::to_string(&user_id).unwrap(), serde_json::to_string(&repr).unwrap());
-/// }
-/// ```
-#[repr(transparent)]
 pub struct Id<const TF: TraitFlags, Entity, Repr>(
     Repr,
     PhantomData<core::sync::atomic::AtomicPtr<Entity>>,
 );
 
 impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
-    /// `get` returns the underlying representation of the identifier.
-    ///
-    /// ```
-    /// #![cfg_attr(
-    ///     feature = "unstable_generic_const_own_type",
-    ///     feature(generic_const_exprs)
-    /// )]
-    ///
-    /// use phantom_newtype::Id;
-    ///
-    /// enum User {}
-    /// type UserId = Id<User, u64>;
-    ///
-    /// assert_eq!(*UserId::from(15).get(), 15);
-    /// ```
     pub const fn get(&self) -> &Repr {
         &self.0
     }
-
-    /// `new` is a synonym for `from` that can be evaluated in
-    /// compile time. The main use-case of this functions is defining
-    /// constants:
-    ///
-    /// ```
-    /// #![cfg_attr(
-    ///     feature = "unstable_generic_const_own_type",
-    ///     feature(generic_const_exprs)
-    /// )]
-    ///
-    /// use phantom_newtype::Id;
-    /// enum User {}
-    /// type UserId = Id<User, u64>;
-    ///
-    /// const ADMIN_ID: UserId = UserId::new(42);
-    ///
-    /// assert_eq!(*ADMIN_ID.get(), 42);
-    /// ```
     pub const fn new(repr: Repr) -> Id<TF, Entity, Repr> {
         Id(repr, PhantomData)
     }
@@ -253,17 +76,9 @@ impl<const TF: TraitFlags, Entity, Repr: Clone> Clone for Id<TF, Entity, Repr> {
 }
 
 impl<Entity, Repr: Copy> Copy for Id<{ TraitFlags::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Entity, Repr> {}
-impl<Entity, Repr: Copy> Copy for Id<{ TraitFlags::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Entity, Repr> {}
 
 impl<Unit, Repr: Default> Default
     for Id<{ TraitFlags::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
-{
-    fn default() -> Self {
-        Self(Default::default(), PhantomData)
-    }
-}
-impl<Unit, Repr: Default> Default
-    for Id<{ TraitFlags::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
 {
     fn default() -> Self {
         Self(Default::default(), PhantomData)
@@ -273,24 +88,6 @@ impl<Unit, Repr: Default> Default
 impl<const TF: TraitFlags, Entity, Repr: PartialEq> PartialEq for Id<TF, Entity, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.get().eq(&rhs.get())
-    }
-}
-
-impl<const TF: TraitFlags, Entity, Repr: PartialOrd> PartialOrd for Id<TF, Entity, Repr> {
-    fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
-        self.get().partial_cmp(&rhs.get())
-    }
-}
-
-impl<const TF: TraitFlags, Entity, Repr: Ord> Ord for Id<TF, Entity, Repr> {
-    fn cmp(&self, rhs: &Self) -> Ordering {
-        self.get().cmp(&rhs.get())
-    }
-}
-
-impl<const TF: TraitFlags, Entity, Repr: Hash> Hash for Id<TF, Entity, Repr> {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.get().hash(state)
     }
 }
 
@@ -308,28 +105,3 @@ impl<const TF: TraitFlags, Entity, Repr: fmt::Debug> fmt::Debug for Id<TF, Entit
     }
 }
 
-impl<const TF: TraitFlags, Entity, Repr: fmt::Display> fmt::Display for Id<TF, Entity, Repr> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.get())
-    }
-}
-
-#[cfg(feature = "serde")]
-impl<const TF: TraitFlags, Entity, Repr> Serialize for Id<TF, Entity, Repr>
-where
-    Repr: Serialize,
-{
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.get().serialize(serializer)
-    }
-}
-
-#[cfg(feature = "serde")]
-impl<'de, const TF: TraitFlags, Entity, Repr> Deserialize<'de> for Id<TF, Entity, Repr>
-where
-    Repr: Deserialize<'de>,
-{
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Repr::deserialize(deserializer).map(Self::from)
-    }
-}
