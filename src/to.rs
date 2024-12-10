@@ -128,28 +128,28 @@ pub struct Out2;
 impl<UNIT: Copy> As<Out> for Amm<In, UNIT> {}
 impl<UNIT: Copy> As<Out2> for Amm<In, UNIT> {}
 
-pub fn in_to_out_f32(inp: Amm<In, f32>) -> Amm<Out, f32> {
+fn _in_to_out_f32(inp: Amm<In, f32>) -> Amm<Out, f32> {
     let inp2 = inp;
-    let imp2: Amm<Out2, _> = inp2.to();
-    let inp3 = inp2.to() as Amm<Out, _>;
+    let _inp2: Amm<Out2, _> = inp2.to();
+    let _inp3 = inp2.to() as Amm<Out, _>;
     // @TODO consider:
     //
     // let inp3 =  Amm<Out, _>::fr(inp2);
 
-    /// the above `impl` automatically enables this:
+    // the above `impl` automatically enables this:
     inp.to()
 }
 
 /// Indicate/activate the blanket impl.
 impl<PROPERTY: Copy, UNIT: Copy> AsFrom<(In, PROPERTY)> for Amm<(Out, PROPERTY), UNIT> {}
 
-pub fn in_to_out_f64<PROPERTY: Copy>(inp: Amm<(In, PROPERTY), f64>) -> Amm<(Out, PROPERTY), f64> {
-    /// the above `impl` automatically enables this:
+pub fn _in_to_out_f64<PROPERTY: Copy>(inp: Amm<(In, PROPERTY), f64>) -> Amm<(Out, PROPERTY), f64> {
+    // the above `impl` automatically enables this:
     inp.to()
 }
-pub fn in_to_out<PROPERTY: Copy, UNIT: Copy>(
+pub fn _in_to_out<PROPERTY: Copy, UNIT: Copy>(
     inp: Amm<(In, PROPERTY), UNIT>,
 ) -> Amm<(Out, PROPERTY), UNIT> {
-    /// the above `impl` automatically enables this:
+    // the above `impl` automatically enables this:
     inp.to()
 }

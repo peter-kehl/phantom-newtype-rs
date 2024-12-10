@@ -265,7 +265,8 @@ where
     /// use core::fmt;
     ///
     /// struct Cents;
-    /// // This causes ICE (with feature `unstable_generic_const_own_type`):
+    /// struct YearUnit;
+    /// // This causes ICE (with feature `unstable_generic_const_own_type`), see https://github.com/rust-lang/rust/issues/134044:
     /// #[cfg(not(feature = "unstable_generic_const_own_type"))]
     /// type Money = phantom_newtype::Amount<Cents, u64>;
     /// // No ICE:

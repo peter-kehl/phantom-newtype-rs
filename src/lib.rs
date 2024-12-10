@@ -48,6 +48,8 @@ pub use displayer::{DisplayProxy, DisplayerOf};
 #[cfg(feature = "unstable_generic_const_own_type")]
 pub use id::Id as IdForFlags;
 
+pub use to::{As, AsFrom, AsFromMut, AsMut, To, ToFrom, ToFromMut, ToMut};
+
 // Short names. Also in mod prelude:
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub type Id<Unit, Repr> = id::Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>;

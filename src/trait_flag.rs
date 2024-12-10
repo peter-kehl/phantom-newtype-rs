@@ -6,10 +6,10 @@
     derive(core::marker::ConstParamTy)
 )]
 pub enum TraitFlagsValues {
-    TRAIT_FLAGS_NO_COPY_NO_DEFAULT,
-    TRAIT_FLAGS_IS_COPY_NO_DEFAULT,
-    TRAIT_FLAGS_NO_COPY_IS_DEFAULT,
-    TRAIT_FLAGS_IS_COPY_IS_DEFAULT,
+    TraitFlagsNoCopyNoDefault,
+    TraitFlagsIsCopyNoDefault,
+    TraitFlagsNoCopyIsDefault,
+    TraitFlagsIsCopyIsDefault,
 }
 
 /// Use for a const generic `TRAIT_FLAGS` parameter to indicate some optional functionality of
@@ -45,7 +45,9 @@ const fn trait_flags_new(tfv: TraitFlagsValues) -> TraitFlags {
     }
 }
 
+#[cfg(test)]
 const TRAIT_FLAG_BIT_COPY: u8 = 0b1;
+#[cfg(test)]
 const TRAIT_FLAG_BIT_DEFAULT: u8 = 0b10;
 
 #[cfg_attr(
@@ -54,29 +56,30 @@ const TRAIT_FLAG_BIT_DEFAULT: u8 = 0b10;
 )]
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub const TRAIT_FLAGS_IS_COPY_IS_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_IS_COPY_IS_DEFAULT);
+    trait_flags_new(TraitFlagsValues::TraitFlagsIsCopyIsDefault);
 #[cfg_attr(
     feature = "unstable_generic_const_own_type",
     deprecated(note = "`nightly` warning: Direct use is unstable!")
 )]
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub const TRAIT_FLAGS_IS_COPY_NO_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_IS_COPY_NO_DEFAULT);
+    trait_flags_new(TraitFlagsValues::TraitFlagsIsCopyNoDefault);
 #[cfg_attr(
     feature = "unstable_generic_const_own_type",
     deprecated(note = "`nightly` warning: Direct use is unstable!")
 )]
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub const TRAIT_FLAGS_NO_COPY_IS_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_NO_COPY_IS_DEFAULT);
+    trait_flags_new(TraitFlagsValues::TraitFlagsNoCopyIsDefault);
 #[cfg_attr(
     feature = "unstable_generic_const_own_type",
     deprecated(note = "`nightly` warning: Direct use is unstable!")
 )]
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub const TRAIT_FLAGS_NO_COPY_NO_DEFAULT: TraitFlags =
-    trait_flags_new(TraitFlagsValues::TRAIT_FLAGS_NO_COPY_NO_DEFAULT);
+    trait_flags_new(TraitFlagsValues::TraitFlagsNoCopyNoDefault);
 
+#[cfg(test)]
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 const fn trait_flags_bits(tf: TraitFlags) -> u8 {
     #[cfg(not(feature = "unstable_generic_const_own_type"))]
@@ -85,10 +88,12 @@ const fn trait_flags_bits(tf: TraitFlags) -> u8 {
     return tf as u8;
 }
 
+#[cfg(test)]
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 const fn is_copy(flags: TraitFlags) -> bool {
     trait_flags_bits(flags) & TRAIT_FLAG_BIT_COPY != 0
 }
+#[cfg(test)]
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 const fn is_default(flags: TraitFlags) -> bool {
     trait_flags_bits(flags) & TRAIT_FLAG_BIT_DEFAULT != 0

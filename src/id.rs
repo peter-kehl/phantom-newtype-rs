@@ -232,7 +232,8 @@ where
     /// use core::fmt;
     ///
     /// enum Message {}
-    /// // This causes ICE (with feature `unstable_generic_const_own_type`):
+    /// struct YearUnit;
+    /// // This causes ICE (with feature `unstable_generic_const_own_type`), see https://github.com/rust-lang/rust/issues/134044:
     /// #[cfg(not(feature = "unstable_generic_const_own_type"))]
     /// type MessageId = phantom_newtype::Id<Message, [u8; 32]>;
     /// // No ICE:
