@@ -14,29 +14,22 @@
 
 use core::marker::PhantomData;
 
-/// Flag-gated:
-/// - Default
-/// - Copy
-/// - Display, ToString
-
-/// Indicator trait that activates a blanket `impl` of [To].
+/// @TODO
+/// - copied()
+/// - cloned() <-> Iterator::cloned(self) => then use: .ref().cloned()
+/// - into()
+/// - ref(), mut() - same as Deref/DerefMut, but shorter.
 ///
-/// This can't activate any blanket `impl` of [core::ops::Deref], because anything like the
-/// following fails to compile:
-/// ```compile_fail
-/// impl<T, Repr, O> Deref for Amm<T, Repr>
-/// where
-/// Self: As<O> {
-/// /// ...
-/// }
-/// ```
-pub trait As<T> {}
-pub trait AsMut<T> {}
-pub trait AsFrom<T> {}
-pub trait AsFromMut<T> {}
+/// multiple From<xxx> are OK! Multiple Into<xxxx> are OK, too.
+///
+/// AsRef, Borrow, Deref, DerefMut
 
-#[derive(Copy, Clone)]
-pub struct Amm<T: Copy, Repr: Copy>(PhantomData<core::sync::atomic::AtomicPtr<T>>, Repr);
+fn _caller() {
+    // A caller creates a value as Out.
+    //
+    // But it enters a callee as In.
+    // -> <T: Into<xxx<In, yyy>>
+}
 
 #[cfg(feature = "unstable_transmute_unchecked")]
 pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
@@ -60,16 +53,36 @@ pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
     )
 }
 
-pub trait To<O: Copy, Repr: Copy> {
+/// Indicator trait that activates a blanket `impl` of [To].
+///
+/// This can't activate any blanket `impl` of [core::ops::Deref], because anything like the
+/// following fails to compile:
+/// ```compile_fail
+/// impl<T, Repr, O> Deref for Amm<T, Repr>
+/// where
+/// Self: As<O> {
+/// /// ...
+/// }
+/// ```
+pub trait As<T> {}
+pub trait AsMut<T> {}
+pub trait AsFrom<T> {}
+pub trait AsFromMut<T> {}
+
+#[derive(Copy, Clone)]
+pub struct Amm<T, Repr>(PhantomData<core::sync::atomic::AtomicPtr<T>>, Repr);
+
+pub trait To<O, Repr> {
     fn to(self) -> Amm<O, Repr>;
     fn to_ref(&self) -> &Amm<O, Repr>;
 }
-pub trait ToMut<O: Copy, Repr: Copy> {
+pub trait ToMut<O, Repr> {
     fn to_mut(&mut self) -> &mut Amm<O, Repr>;
 }
-impl<T: Copy, Repr: Copy, O: Copy> To<O, Repr> for Amm<T, Repr>
+
+impl<T, Repr, O> To<O, Repr> for Amm<T, Repr>
 where
-    Self: As<O>, // this doesn't help: ,Repr: Sized
+    Self: As<O>,
 {
     fn to(self) -> Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
@@ -78,25 +91,27 @@ where
         unsafe { transmute_unchecked(self) }
     }
 }
-impl<T: Copy, Repr: Copy, O: Copy> ToMut<O, Repr> for Amm<T, Repr>
+impl<T, Repr, O> ToMut<O, Repr> for Amm<T, Repr>
 where
-    Self: AsMut<O>, // this doesn't help: ,Repr: Sized
+    Self: AsMut<O>,
 {
     fn to_mut(&mut self) -> &mut Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
 }
 
+// ------
 /// This trait doesn't have a generic parameter indicating the type we're transforming from.
 /// However, it has "From" in its name, because it's related to [AsFrom].
-pub trait ToFrom<O: Copy, Repr: Copy> {
+pub trait ToFrom<O, Repr> {
     fn to(self) -> Amm<O, Repr>;
     fn to_ref(&self) -> &Amm<O, Repr>;
 }
-pub trait ToFromMut<O: Copy, Repr: Copy> {
+pub trait ToFromMut<O, Repr> {
     fn to_mut(&mut self) -> &mut Amm<O, Repr>;
 }
-impl<T: Copy, Repr: Copy, O: Copy> ToFrom<O, Repr> for Amm<T, Repr>
+
+impl<T, Repr, O> ToFrom<O, Repr> for Amm<T, Repr>
 where
     Amm<O, Repr>: AsFrom<T>,
 {
@@ -107,7 +122,7 @@ where
         unsafe { transmute_unchecked(self) }
     }
 }
-impl<T: Copy, Repr: Copy, O: Copy> ToFromMut<O, Repr> for Amm<T, Repr>
+impl<T, Repr, O> ToFromMut<O, Repr> for Amm<T, Repr>
 where
     Amm<O, Repr>: AsFromMut<T>,
 {
@@ -116,6 +131,7 @@ where
     }
 }
 
+//-------
 // USERLAND:
 #[derive(Clone, Copy)]
 pub struct In;
@@ -125,8 +141,10 @@ pub struct Out;
 pub struct Out2;
 
 /// Indicate/activate the blanket impl.
-impl<UNIT: Copy> As<Out> for Amm<In, UNIT> {}
-impl<UNIT: Copy> As<Out2> for Amm<In, UNIT> {}
+//impl<UNIT: Copy> As<Out> for Amm<In, UNIT> {}
+//impl<UNIT: Copy> As<Out2> for Amm<In, UNIT> {}
+impl<UNIT> As<Out> for Amm<In, UNIT> {}
+impl<UNIT> As<Out2> for Amm<In, UNIT> {}
 
 fn _in_to_out_f32(inp: Amm<In, f32>) -> Amm<Out, f32> {
     let inp2 = inp;
@@ -139,17 +157,16 @@ fn _in_to_out_f32(inp: Amm<In, f32>) -> Amm<Out, f32> {
     // the above `impl` automatically enables this:
     inp.to()
 }
+//-----
 
 /// Indicate/activate the blanket impl.
-impl<PROPERTY: Copy, UNIT: Copy> AsFrom<(In, PROPERTY)> for Amm<(Out, PROPERTY), UNIT> {}
+impl<PROPERTY, UNIT> AsFrom<(In, PROPERTY)> for Amm<(Out, PROPERTY), UNIT> {}
 
-pub fn _in_to_out_f64<PROPERTY: Copy>(inp: Amm<(In, PROPERTY), f64>) -> Amm<(Out, PROPERTY), f64> {
+pub fn _in_to_out_f64<PROPERTY>(inp: Amm<(In, PROPERTY), f64>) -> Amm<(Out, PROPERTY), f64> {
     // the above `impl` automatically enables this:
     inp.to()
 }
-pub fn _in_to_out<PROPERTY: Copy, UNIT: Copy>(
-    inp: Amm<(In, PROPERTY), UNIT>,
-) -> Amm<(Out, PROPERTY), UNIT> {
+pub fn _in_to_out<PROPERTY, UNIT>(inp: Amm<(In, PROPERTY), UNIT>) -> Amm<(Out, PROPERTY), UNIT> {
     // the above `impl` automatically enables this:
     inp.to()
 }

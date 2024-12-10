@@ -43,6 +43,9 @@ mod trait_flag;
 #[cfg(feature = "unstable_generic_const_own_type")]
 pub mod trait_flag;
 
+//#[cfg(feature = "alloc")]
+//extern crate alloc;
+
 pub use displayer::{DisplayProxy, DisplayerOf};
 
 #[cfg(feature = "unstable_generic_const_own_type")]
