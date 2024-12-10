@@ -10,4 +10,4 @@ pub use displayer::{DisplayProxy, DisplayerOf};
 
 pub use id::Id as IdForFlags;
 
-pub type Id<Unit, Repr> = id::Id<{ trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT }, Unit, Repr>;
+pub type Id<Unit, Repr> = id::Id<{ trait_flag::TraitFlags::ONE }, Unit, Repr>;

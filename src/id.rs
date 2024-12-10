@@ -31,7 +31,7 @@ where
     /// // This causes ICE (with feature `unstable_generic_const_own_type`):
     /// //type MessageId = phantom_newtype::Id<Message, [u8; 32]>;
     /// // No ICE:
-    /// type MessageId = phantom_newtype::IdForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT}, Message, [u8; 32]>;
+    /// type MessageId = phantom_newtype::IdForFlags<{phantom_newtype::trait_flag::TraitFlags::ONE}, Message, [u8; 32]>;
     ///
     /// impl DisplayerOf<MessageId> for Message {
     ///   fn display(id: &MessageId, f: &mut fmt::Formatter<'_>) -> fmt::Result {
