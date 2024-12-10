@@ -23,7 +23,7 @@ use core::marker::PhantomData;
 ///
 /// This can't activate any blanket `impl` of [core::ops::Deref], because anything like the
 /// following fails to compile:
-/// ```ignore
+/// ```compile_fail
 /// impl<T, Repr, O> Deref for Amm<T, Repr>
 /// where
 /// Self: As<O> {
@@ -31,13 +31,19 @@ use core::marker::PhantomData;
 /// }
 /// ```
 pub trait As<T> {}
+pub trait AsMut<T> {}
 pub trait AsFrom<T> {}
-pub struct Amm<T, Repr>(PhantomData<core::sync::atomic::AtomicPtr<T>>, Repr);
+pub trait AsFromMut<T> {}
 
-/*pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
+#[derive(Copy, Clone)]
+pub struct Amm<T:Copy, Repr: Copy>(PhantomData<core::sync::atomic::AtomicPtr<T>>, Repr);
+
+#[cfg(feature = "unstable_transmute_unchecked")]
+pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
     core::intrinsics::transmute_unchecked(x)
-}*/
+}
 
+#[cfg(not(feature = "unstable_transmute_unchecked"))]
 /// Thanks to Helix (noop_noob).
 pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
     use core::mem::ManuallyDrop;
@@ -54,12 +60,14 @@ pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
     )
 }
 
-pub trait To<O, Repr> {
+pub trait To<O: Copy, Repr: Copy> {
     fn to(self) -> Amm<O, Repr>;
     fn to_ref(&self) -> &Amm<O, Repr>;
+}
+pub trait ToMut<O: Copy, Repr: Copy> {
     fn to_mut(&mut self) -> &mut Amm<O, Repr>;
 }
-impl<T, Repr, O> To<O, Repr> for Amm<T, Repr>
+impl<T: Copy, Repr: Copy, O: Copy> To<O, Repr> for Amm<T, Repr>
 where
     Self: As<O>, // this doesn't help: ,Repr: Sized
 {
@@ -69,6 +77,11 @@ where
     fn to_ref(&self) -> &Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
+}
+impl<T: Copy, Repr: Copy, O: Copy> ToMut<O, Repr> for Amm<T, Repr>
+where
+    Self: AsMut<O>, // this doesn't help: ,Repr: Sized
+{
     fn to_mut(&mut self) -> &mut Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
@@ -76,12 +89,14 @@ where
 
 /// This trait doesn't have a generic parameter indicating the type we're transforming from.
 /// However, it has "From" in its name, because it's related to [AsFrom].
-pub trait ToFrom<O, Repr> {
+pub trait ToFrom<O: Copy, Repr: Copy> {
     fn to(self) -> Amm<O, Repr>;
     fn to_ref(&self) -> &Amm<O, Repr>;
+}
+pub trait ToFromMut<O: Copy, Repr: Copy> {
     fn to_mut(&mut self) -> &mut Amm<O, Repr>;
 }
-impl<T, Repr, O> ToFrom<O, Repr> for Amm<T, Repr>
+impl<T: Copy, Repr: Copy, O: Copy> ToFrom<O, Repr> for Amm<T, Repr>
 where
     Amm<O, Repr>: AsFrom<T>,
 {
@@ -91,31 +106,48 @@ where
     fn to_ref(&self) -> &Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
+}
+impl<T: Copy, Repr: Copy, O: Copy> ToFromMut<O, Repr> for Amm<T, Repr>
+where
+    Amm<O, Repr>: AsFromMut<T>,
+{
     fn to_mut(&mut self) -> &mut Amm<O, Repr> {
         unsafe { transmute_unchecked(self) }
     }
 }
 
 // USERLAND:
+#[derive(Clone, Copy)]
 pub struct In;
+#[derive(Clone, Copy)]
 pub struct Out;
+#[derive(Clone, Copy)]
+pub struct Out2;
 
 /// Indicate/activate the blanket impl.
-impl<UNIT> As<Out> for Amm<In, UNIT> {}
+impl<UNIT: Copy> As<Out> for Amm<In, UNIT> {}
+impl<UNIT: Copy> As<Out2> for Amm<In, UNIT> {}
 
 pub fn in_to_out_f32(inp: Amm<In, f32>) -> Amm<Out, f32> {
+    let inp2 = inp;
+    let imp2: Amm<Out2, _> = inp2.to();
+    let inp3 = inp2.to() as Amm<Out, _>;
+    // @TODO consider:
+    //
+    // let inp3 =  Amm<Out, _>::fr(inp2);
+
     /// the above `impl` automatically enables this:
     inp.to()
 }
 
 /// Indicate/activate the blanket impl.
-impl<PROPERTY, UNIT> AsFrom<(In, PROPERTY)> for Amm<(Out, PROPERTY), UNIT> {}
+impl<PROPERTY: Copy, UNIT: Copy> AsFrom<(In, PROPERTY)> for Amm<(Out, PROPERTY), UNIT> {}
 
-pub fn in_to_out_f64<PROPERTY>(inp: Amm<(In, PROPERTY), f64>) -> Amm<(Out, PROPERTY), f64> {
+pub fn in_to_out_f64<PROPERTY: Copy>(inp: Amm<(In, PROPERTY), f64>) -> Amm<(Out, PROPERTY), f64> {
     /// the above `impl` automatically enables this:
     inp.to()
 }
-pub fn in_to_out<PROPERTY, UNIT>(inp: Amm<(In, PROPERTY), UNIT>) -> Amm<(Out, PROPERTY), UNIT> {
+pub fn in_to_out<PROPERTY: Copy, UNIT: Copy>(inp: Amm<(In, PROPERTY), UNIT>) -> Amm<(Out, PROPERTY), UNIT> {
     /// the above `impl` automatically enables this:
     inp.to()
 }

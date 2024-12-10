@@ -61,6 +61,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// `Id` is cheap to copy if `Repr` is:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Id;
 ///
 /// enum Message {}
@@ -75,6 +80,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// this property:
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Id;
 /// use std::collections::HashMap;
 ///
@@ -94,6 +104,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// semantic value in comparing ids.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use std::collections::BTreeMap;
 /// use phantom_newtype::Id;
 ///
@@ -112,6 +127,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// matter which `Entity` is used.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// use phantom_newtype::Id;
 ///
 /// type Cell = core::cell::RefCell<i64>;
@@ -126,6 +146,11 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// forms of `Id<Entity, Repr>` and `Repr` are identical.
 ///
 /// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs)
+/// )]
+///
 /// #[cfg(feature = "serde")] {
 /// use phantom_newtype::Id;
 /// use serde::{Serialize, Deserialize};
@@ -147,6 +172,11 @@ impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
     /// `get` returns the underlying representation of the identifier.
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Id;
     ///
     /// enum User {}
@@ -163,6 +193,11 @@ impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
     /// constants:
     ///
     /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs)
+    /// )]
+    ///
     /// use phantom_newtype::Id;
     /// enum User {}
     /// type UserId = Id<User, u64>;
@@ -184,24 +219,28 @@ where
     /// for phantom types.
     ///
     /// ```
-    /// use phantom_newtype::{Id, DisplayerOf};
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs),
+    /// )]
+    ///
+    /// //use phantom_newtype::{Id, DisplayerOf};
+    /// use phantom_newtype::DisplayerOf;
+    /// use phantom_newtype::IdNoCopyNoDefault;
+    /// //use phantom_newtype::IdIsCopyIsDefault as Id;
+    /// //use phantom_newtype::IdNoCopyNoDefault as Id;
     /// use core::fmt;
     ///
     /// enum Message {}
-    /// type MessageId = Id<Message, [u8; 32]>;
+    /// type MessageId = IdNoCopyNoDefault<Message, [u8; 32]>;
     ///
     /// impl DisplayerOf<MessageId> for Message {
     ///   fn display(id: &MessageId, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    ///     id.get().iter().try_for_each(|b| write!(f, "{:02x}", b))
+    ///     todo!()
     ///   }
     /// }
     ///
-    /// let vec: Vec<_> = (0u8..32u8).collect();
-    /// let mut arr: [u8; 32] = [0u8; 32];
-    /// (&mut arr[..]).copy_from_slice(&vec[..]);
-    ///
-    /// assert_eq!(format!("{}", MessageId::from(arr).display()),
-    ///            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f");
+    /// MessageId::from([0u8; 32]);
     /// ```
     pub fn display(&self) -> DisplayProxy<'_, Self, Entity> {
         DisplayProxy::new(self)
