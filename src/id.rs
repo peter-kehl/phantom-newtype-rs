@@ -233,8 +233,10 @@ where
     ///
     /// enum Message {}
     /// // This causes ICE (with feature `unstable_generic_const_own_type`):
-    /// //type MessageId = phantom_newtype::Id<Message, [u8; 32]>;
+    /// #[cfg(not(feature = "unstable_generic_const_own_type"))]
+    /// type MessageId = phantom_newtype::Id<Message, [u8; 32]>;
     /// // No ICE:
+    /// #[cfg(feature = "unstable_generic_const_own_type")]
     /// type MessageId = phantom_newtype::IdForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT}, Message, [u8; 32]>;
     ///
     /// impl DisplayerOf<MessageId> for Message {

@@ -266,8 +266,10 @@ where
     ///
     /// struct Cents;
     /// // This causes ICE (with feature `unstable_generic_const_own_type`):
-    /// //type Money = phantom_newtype::Amount<Cents, u64>;
+    /// #[cfg(not(feature = "unstable_generic_const_own_type"))]
+    /// type Money = phantom_newtype::Amount<Cents, u64>;
     /// // No ICE:
+    /// #[cfg(feature = "unstable_generic_const_own_type")]
     /// type Money = phantom_newtype::AmountForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, Cents, u64>;
     ///
     /// impl DisplayerOf<Money> for Cents {

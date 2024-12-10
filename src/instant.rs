@@ -259,9 +259,11 @@ where
     /// use core::fmt;
     ///
     /// struct YearUnit;
-    /// // This causes ICE (with feature `unstable_generic_const_own_type`):
-    /// //type YearAD = phantom_newtype::Instant<YearUnit, u64>;
+    /// // This causes ICE (with feature `unstable_generic_const_own_type`), see https://github.com/rust-lang/rust/issues/134044:
+    /// #[cfg(not(feature = "unstable_generic_const_own_type"))]
+    /// type YearAD = phantom_newtype::Instant<YearUnit, u64>;
     /// // No ICE:
+    /// #[cfg(feature = "unstable_generic_const_own_type")]
     /// type YearAD = phantom_newtype::InstantForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, YearUnit, u64>;
     ///
     /// impl DisplayerOf<YearAD> for YearUnit {
