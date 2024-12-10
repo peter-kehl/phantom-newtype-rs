@@ -241,7 +241,7 @@ impl<const TF: TraitFlags, Unit, Repr> Instant<TF, Unit, Repr>
 where
     Unit: DisplayerOf<Instant<TF, Unit, Repr>>,
 {
-    /// `display` provides a machanism to implement a custom display
+    /// `display` provides a mechanism to implement a custom display
     /// for phantom types.
     ///
     /// ```ignore
@@ -278,15 +278,18 @@ impl<const TF: TraitFlags, Unit, Repr: Clone> Clone for Instant<TF, Unit, Repr> 
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Unit, Repr: Copy> Copy
     for Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
 {
 }
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Unit, Repr: Copy> Copy
     for Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>
 {
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Unit, Repr: Default> Default
     for Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
 {
@@ -294,6 +297,7 @@ impl<Unit, Repr: Default> Default
         Self(Default::default(), PhantomData)
     }
 }
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Unit, Repr: Default> Default
     for Instant<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
 {

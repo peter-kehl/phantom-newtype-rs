@@ -36,7 +36,7 @@ pub trait AsFrom<T> {}
 pub trait AsFromMut<T> {}
 
 #[derive(Copy, Clone)]
-pub struct Amm<T:Copy, Repr: Copy>(PhantomData<core::sync::atomic::AtomicPtr<T>>, Repr);
+pub struct Amm<T: Copy, Repr: Copy>(PhantomData<core::sync::atomic::AtomicPtr<T>>, Repr);
 
 #[cfg(feature = "unstable_transmute_unchecked")]
 pub const unsafe fn transmute_unchecked<T, U>(x: T) -> U {
@@ -147,7 +147,9 @@ pub fn in_to_out_f64<PROPERTY: Copy>(inp: Amm<(In, PROPERTY), f64>) -> Amm<(Out,
     /// the above `impl` automatically enables this:
     inp.to()
 }
-pub fn in_to_out<PROPERTY: Copy, UNIT: Copy>(inp: Amm<(In, PROPERTY), UNIT>) -> Amm<(Out, PROPERTY), UNIT> {
+pub fn in_to_out<PROPERTY: Copy, UNIT: Copy>(
+    inp: Amm<(In, PROPERTY), UNIT>,
+) -> Amm<(Out, PROPERTY), UNIT> {
     /// the above `impl` automatically enables this:
     inp.to()
 }

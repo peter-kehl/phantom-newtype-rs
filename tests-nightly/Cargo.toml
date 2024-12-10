@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-phantom_newtype = { path = "..", features = ["unstable_generic_const_own_type"] }
+phantom_newtype = { path = "..", features = ["unstable_generic_const_own_type", "unstable_transmute_unchecked"] }

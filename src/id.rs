@@ -232,7 +232,7 @@ where
     /// use core::fmt;
     ///
     /// enum Message {}
-    /// // This causes ICE:
+    /// // This causes ICE (with feature `unstable_generic_const_own_type`):
     /// //type MessageId = phantom_newtype::Id<Message, [u8; 32]>;
     /// // No ICE:
     /// type MessageId = phantom_newtype::IdForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT}, Message, [u8; 32]>;
@@ -262,9 +262,12 @@ impl<const TF: TraitFlags, Entity, Repr: Clone> Clone for Id<TF, Entity, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Entity, Repr> {}
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Entity, Repr: Copy> Copy for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Entity, Repr> {}
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Unit, Repr: Default> Default
     for Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>
 {
@@ -272,6 +275,7 @@ impl<Unit, Repr: Default> Default
         Self(Default::default(), PhantomData)
     }
 }
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<Unit, Repr: Default> Default
     for Id<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>
 {

@@ -32,7 +32,7 @@ unstable_transmute_unchecked = []
 
 #default = []
 # For type hinting in VS Code (and similar):
-default = ["unstable_generic_const_own_type"]
+default = ["unstable_generic_const_own_type", "serde"]
 
 [package.metadata.docs.rs]
 all-features = true
