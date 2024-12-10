@@ -1,8 +1,7 @@
-use crate::displayer::{DisplayProxy, DisplayerOf};
+use crate::DisplayerOf;
 use crate::trait_flag::TraitFlags;
 use core::marker::PhantomData;
 
-#[repr(transparent)]
 pub struct Id<const TF: TraitFlags, Entity, Repr>(
     Repr,
     PhantomData<core::sync::atomic::AtomicPtr<Entity>>,
@@ -34,22 +33,10 @@ where
     /// type MessageId = phantom_newtype::IdForFlags<{phantom_newtype::trait_flag::TraitFlags::ONE}, Message, [u8; 32]>;
     ///
     /// impl DisplayerOf<MessageId> for Message {
-    ///   fn display(id: &MessageId, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    ///     todo!()
-    ///   }
+    ///   fn display() {}
     /// }
     ///
-    /// MessageId::from([0u8; 32]);
+    /// MessageId::new([0u8; 32]);
     /// ```
-    pub fn display(&self) -> DisplayProxy<'_, Self, Entity> {
-        DisplayProxy::new(self)
-    }
-}
-
-
-#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
-impl<const TF: TraitFlags, Entity, Repr> From<Repr> for Id<TF, Entity, Repr> {
-    fn from(repr: Repr) -> Self {
-        Self::new(repr)
-    }
+    pub fn display() {}
 }

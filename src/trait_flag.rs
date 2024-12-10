@@ -1,6 +1,4 @@
-//! Unstable.
-
-#[derive(Eq, PartialEq, PartialOrd, core::marker::ConstParamTy)]
+#[derive(Eq, PartialEq, core::marker::ConstParamTy)]
 pub enum TraitFlags {
     ONE,
 }
