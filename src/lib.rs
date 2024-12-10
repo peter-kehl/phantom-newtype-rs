@@ -17,7 +17,8 @@ impl<const TF: TraitFlags, Repr> IdForFlags<TF, Repr> {
     }
 }
 
-pub type Id<Repr> = IdForFlags<{ TraitFlags::ONE }, Repr>;
+pub type IdAliasSpecialized<Repr> = IdForFlags<{ TraitFlags::ONE }, Repr>;
+pub type IdAliasNotSpecialized<const TF: TraitFlags, Repr> = IdForFlags<TF, Repr>;
 
 /// ```
 /// #![feature(generic_const_exprs)]
@@ -26,9 +27,13 @@ pub type Id<Repr> = IdForFlags<{ TraitFlags::ONE }, Repr>;
 ///
 /// enum Message {}
 /// // This causes ICE (with feature `unstable_generic_const_own_type`):
-/// type MessageId = phantom_newtype::Id<()>;
+/// type MessageId = phantom_newtype::IdAliasSpecialized<()>;
+/// //
 /// // No ICE:
 /// //type MessageId = phantom_newtype::IdForFlags<{phantom_newtype::TraitFlags::ONE}, ()>;
+/// //
+/// // No ICE:
+/// //type MessageId = phantom_newtype::IdAliasNotSpecialized<{phantom_newtype::TraitFlags::ONE}, ()>;
 ///
 /// impl DisplayerOf<MessageId> for Message {}
 ///
