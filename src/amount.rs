@@ -255,18 +255,21 @@ where
     /// `display` provides a mechanism to implement a custom display
     /// for phantom types.
     ///
-    /// ```ignore
+    /// ```
     /// #![cfg_attr(
     ///     feature = "unstable_generic_const_own_type",
     ///     feature(generic_const_exprs),
     /// feature(adt_const_params),
     /// )]
     ///
-    /// use phantom_newtype::{Amount, DisplayerOf};
+    /// use phantom_newtype::DisplayerOf;
     /// use core::fmt;
     ///
     /// struct Cents;
-    /// type Money = Amount<Cents, u64>;
+    /// // This causes ICE (with feature `unstable_generic_const_own_type`):
+    /// //type Money = Amount<Cents, u64>;
+    /// // No ICE:
+    /// type Money = phantom_newtype::AmountForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, Cents, u64>;
     ///
     /// impl DisplayerOf<Money> for Cents {
     ///   fn display(amount: &Money, f: &mut fmt::Formatter<'_>) -> fmt::Result {

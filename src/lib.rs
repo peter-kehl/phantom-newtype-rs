@@ -45,7 +45,6 @@ pub mod trait_flag;
 
 pub use displayer::{DisplayProxy, DisplayerOf};
 
-// @TODO move deprecated, and/or what?
 #[cfg(feature = "unstable_generic_const_own_type")]
 pub use id::Id as IdForFlags;
 
@@ -66,6 +65,9 @@ pub type IdIsCopyIsDefault<Unit, Repr> = Id<Unit, Repr>;
 pub type IdIsCopyNoDefault<Unit, Repr> = IdNoDefault<Unit, Repr>;
 pub type IdNoCopyIsDefault<Unit, Repr> = IdNoCopy<Unit, Repr>;
 
+#[cfg(feature = "unstable_generic_const_own_type")]
+pub use amount::Amount as AmountForFlags;
+
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub type Amount<Unit, Repr> =
     amount::Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>;
@@ -83,6 +85,9 @@ pub type AmountNoCopyNoDefault<Unit, Repr> =
 pub type AmountIsCopyIsDefault<Unit, Repr> = Amount<Unit, Repr>;
 pub type AmountIsCopyNoDefault<Unit, Repr> = AmountNoDefault<Unit, Repr>;
 pub type AmountNoCopyIsDefault<Unit, Repr> = AmountNoCopy<Unit, Repr>;
+
+#[cfg(feature = "unstable_generic_const_own_type")]
+pub use instant::Instant as InstantForFlags;
 
 // Short names. Also in mod prelude:
 #[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]

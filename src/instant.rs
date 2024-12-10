@@ -118,7 +118,12 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// Instants can be serialized and deserialized with `serde`. Serialized
 /// forms of `Instant<Unit, Repr>` and `Repr` are identical.
 ///
-/// ```ignore
+/// ```
+/// #![cfg_attr(
+///     feature = "unstable_generic_const_own_type",
+///     feature(generic_const_exprs),
+/// )]
+///
 /// #[cfg(feature = "serde")] {
 /// use phantom_newtype::Instant;
 /// use serde::{Serialize, Deserialize};
@@ -244,12 +249,20 @@ where
     /// `display` provides a mechanism to implement a custom display
     /// for phantom types.
     ///
-    /// ```ignore
-    /// use phantom_newtype::{Instant, DisplayerOf};
+    /// ```
+    /// #![cfg_attr(
+    ///     feature = "unstable_generic_const_own_type",
+    ///     feature(generic_const_exprs),
+    /// )]
+    ///
+    /// use phantom_newtype::DisplayerOf;
     /// use core::fmt;
     ///
     /// struct YearUnit;
-    /// type YearAD = Instant<YearUnit, u64>;
+    /// // This causes ICE (with feature `unstable_generic_const_own_type`):
+    /// //type YearAD = phantom_newtype::Instant<YearUnit, u64>;
+    /// // No ICE:
+    /// type YearAD = phantom_newtype::InstantForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT}, YearUnit, u64>;
     ///
     /// impl DisplayerOf<YearAD> for YearUnit {
     ///   fn display(year: &YearAD, f: &mut fmt::Formatter<'_>) -> fmt::Result {
