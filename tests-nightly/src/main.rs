@@ -1,6 +1,7 @@
 //! Copied from `phantom-newtype`'s doc-tests. There's at least one difference between running the
 //! same code in a doc test and here in a binary crate: In doc tests we didn't get `deprecated`
 //! warnings.
+#![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 
 use core::fmt;
