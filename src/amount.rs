@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use crate::displayer::{DisplayProxy, DisplayerOf};
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 use crate::trait_flag::{self, TraitFlags};
 use core::cmp::Ordering;
 use core::fmt;
@@ -180,12 +181,14 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// let n_from_thread = std::thread::spawn(|| &N).join().unwrap();
 /// assert_eq!(N, *n_from_thread);
 /// ```
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 #[repr(transparent)]
 pub struct Amount<const TF: TraitFlags, Unit, Repr>(
     Repr,
     PhantomData<core::sync::atomic::AtomicPtr<Unit>>,
 );
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Copy> Amount<TF, Unit, Repr> {
     // @TODO
     /// Returns the wrapped value.
@@ -208,6 +211,7 @@ impl<const TF: TraitFlags, Unit, Repr: Copy> Amount<TF, Unit, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Amount<TF, Unit, Repr> {
     /// `new` is a synonym for `from` that can be evaluated in
     /// compile time. The main use-case of this functions is defining
@@ -217,6 +221,7 @@ impl<const TF: TraitFlags, Unit, Repr> Amount<TF, Unit, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit: Default, Repr> Amount<TF, Unit, Repr> {
     // @TODO similar but without &self
     //
@@ -242,6 +247,7 @@ impl<const TF: TraitFlags, Unit: Default, Repr> Amount<TF, Unit, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Amount<TF, Unit, Repr>
 where
     Unit: DisplayerOf<Self>, //@TODO cleanup: Amount<TF, Unit, Repr>>,
@@ -275,6 +281,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> From<Repr> for Amount<TF, Unit, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
@@ -287,6 +294,7 @@ impl<const TF: TraitFlags, Unit, Repr> From<Repr> for Amount<TF, Unit, Repr> {
 // `PartialEq<Wrapper<T>>` require `T` to implement `PartialEq`, which
 // is not what we want: `T` is phantom in our case.
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Clone> Clone for Amount<TF, Unit, Repr> {
     fn clone(&self) -> Self {
         Amount(self.0.clone(), PhantomData)
@@ -311,32 +319,38 @@ impl<Unit, Repr: Default> Default
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: PartialEq> PartialEq for Amount<TF, Unit, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.0.eq(&rhs.0)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Eq> Eq for Amount<TF, Unit, Repr> {}
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: PartialOrd> PartialOrd for Amount<TF, Unit, Repr> {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
         self.0.partial_cmp(&rhs.0)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Ord> Ord for Amount<TF, Unit, Repr> {
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.0.cmp(&rhs.0)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Hash> Hash for Amount<TF, Unit, Repr> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Add for Amount<TF, Unit, Repr>
 where
     Repr: AddAssign + Copy,
@@ -348,6 +362,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> AddAssign for Amount<TF, Unit, Repr>
 where
     Repr: AddAssign + Copy,
@@ -357,6 +372,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> SubAssign for Amount<TF, Unit, Repr>
 where
     Repr: SubAssign + Copy,
@@ -366,6 +382,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Sub for Amount<TF, Unit, Repr>
 where
     Repr: SubAssign + Copy,
@@ -378,6 +395,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> MulAssign<Repr> for Amount<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
@@ -387,6 +405,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Mul<Repr> for Amount<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
@@ -399,6 +418,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Div<Self> for Amount<TF, Unit, Repr>
 where
     Repr: Div<Repr> + Copy,
@@ -410,6 +430,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> fmt::Debug for Amount<TF, Unit, Repr>
 where
     Repr: fmt::Debug,
@@ -419,6 +440,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> fmt::Display for Amount<TF, Unit, Repr>
 where
     Repr: fmt::Display,
@@ -435,6 +457,7 @@ where
 // We want serialization format of `Repr` and the `Amount` to match
 // exactly, that's why we have to provide custom instances.
 #[cfg(feature = "serde")]
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Serialize> Serialize for Amount<TF, Unit, Repr> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.0.serialize(serializer)
@@ -442,6 +465,7 @@ impl<const TF: TraitFlags, Unit, Repr: Serialize> Serialize for Amount<TF, Unit,
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<'de, const TF: TraitFlags, Unit, Repr> Deserialize<'de> for Amount<TF, Unit, Repr>
 where
     Repr: Deserialize<'de>,

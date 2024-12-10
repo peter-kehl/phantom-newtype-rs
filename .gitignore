@@ -1,3 +1,5 @@
 target/
 .vscode/settings.json
 rustc-ice*
+tests-nightly/rustc-ice*
+tests-nightly/target/

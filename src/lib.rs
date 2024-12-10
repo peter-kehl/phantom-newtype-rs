@@ -37,15 +37,24 @@ mod instant;
 pub mod prelude;
 pub mod prelude_full;
 mod to;
+
+#[cfg(not(feature = "unstable_generic_const_own_type"))]
 mod trait_flag;
+#[cfg(feature = "unstable_generic_const_own_type")]
+pub mod trait_flag;
 
 pub use displayer::{DisplayProxy, DisplayerOf};
+
+// @TODO move deprecated, and/or what?
+#[cfg(feature = "unstable_generic_const_own_type")]
+pub use id::Id as IdForFlags;
 
 // Short names. Also in mod prelude:
 pub type Id<Unit, Repr> = id::Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_IS_DEFAULT }, Unit, Repr>;
 pub type IdNoCopy<Unit, Repr> = id::Id<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>;
 pub type IdNoDefault<Unit, Repr> =
     id::Id<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>;
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub type IdNoCopyNoDefault<Unit, Repr> =
     id::Id<{ trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT }, Unit, Repr>;
 // Long names. Also in mod prelude_full:
@@ -59,6 +68,7 @@ pub type AmountNoCopy<Unit, Repr> =
     amount::Amount<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>;
 pub type AmountNoDefault<Unit, Repr> =
     amount::Amount<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>;
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub type AmountNoCopyNoDefault<Unit, Repr> =
     amount::Amount<{ trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT }, Unit, Repr>;
 // Long names. Also in mod prelude_full:
@@ -73,6 +83,7 @@ pub type InstantNoCopy<Unit, Repr> =
     instant::Instant<{ trait_flag::TRAIT_FLAGS_NO_COPY_IS_DEFAULT }, Unit, Repr>;
 pub type InstantNoDefault<Unit, Repr> =
     instant::Instant<{ trait_flag::TRAIT_FLAGS_IS_COPY_NO_DEFAULT }, Unit, Repr>;
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 pub type InstantNoCopyNoDefault<Unit, Repr> =
     instant::Instant<{ trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT }, Unit, Repr>;
 // Long names. Also in mod prelude_full:

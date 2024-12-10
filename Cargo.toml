@@ -30,7 +30,9 @@ unstable_generic_const_own_type = []
 # Whether to use nightly #![feature(core_intrinsics)] for  core::intrinsics::transmute_unchecked
 unstable_transmute_unchecked = []
 
-default = []
+#default = []
+# For type hinting in VS Code (and similar):
+default = ["unstable_generic_const_own_type"]
 
 [package.metadata.docs.rs]
 all-features = true

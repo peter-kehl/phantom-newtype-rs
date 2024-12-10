@@ -15,6 +15,7 @@
 
 use crate::amount::Amount;
 use crate::displayer::{DisplayProxy, DisplayerOf};
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 use crate::trait_flag::{self, TraitFlags};
 use core::cmp::Ordering;
 use core::fmt;
@@ -169,6 +170,7 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// let instant_from_thread = std::thread::spawn(|| &I).join().unwrap();
 /// assert_eq!(I, *instant_from_thread);
 /// ```
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 #[repr(transparent)]
 //`pub struct Instant<Unit, Repr>(Repr, PhantomData<*const Unit>);
 //pub struct Instant<Unit, Repr>(Repr, PhantomData<core::sync::Exclusive<Unit>>);
@@ -176,7 +178,7 @@ pub struct Instant<const TF: TraitFlags, Unit, Repr>(
     Repr,
     PhantomData<core::sync::atomic::AtomicPtr<Unit>>,
 );
-//type TT<X>= core::sync::Exclusive<>
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Copy> Instant<TF, Unit, Repr> {
     // @TODO
 
@@ -200,6 +202,7 @@ impl<const TF: TraitFlags, Unit, Repr: Copy> Instant<TF, Unit, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Instant<TF, Unit, Repr> {
     /// `new` is a synonym for `from` that can be evaluated in
     /// compile time. The main use-case of this functions is defining
@@ -209,6 +212,7 @@ impl<const TF: TraitFlags, Unit, Repr> Instant<TF, Unit, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit: Default, Repr> Instant<TF, Unit, Repr> {
     /// Provides a useful shortcut to access units of an instant if
     /// they implement the `Default` trait:
@@ -232,6 +236,7 @@ impl<const TF: TraitFlags, Unit: Default, Repr> Instant<TF, Unit, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Instant<TF, Unit, Repr>
 where
     Unit: DisplayerOf<Instant<TF, Unit, Repr>>,
@@ -259,12 +264,14 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> From<Repr> for Instant<TF, Unit, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Clone> Clone for Instant<TF, Unit, Repr> {
     fn clone(&self) -> Self {
         Instant(self.0.clone(), PhantomData)
@@ -295,32 +302,38 @@ impl<Unit, Repr: Default> Default
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: PartialEq> PartialEq for Instant<TF, Unit, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.0.eq(&rhs.0)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Eq> Eq for Instant<TF, Unit, Repr> {}
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: PartialOrd> PartialOrd for Instant<TF, Unit, Repr> {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
         self.0.partial_cmp(&rhs.0)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Ord> Ord for Instant<TF, Unit, Repr> {
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.0.cmp(&rhs.0)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Hash> Hash for Instant<TF, Unit, Repr> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash(state)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr, Repr2> Add<Amount<TF, Unit, Repr2>>
     for Instant<TF, Unit, Repr>
 where
@@ -334,6 +347,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr, Repr2> AddAssign<Amount<TF, Unit, Repr2>>
     for Instant<TF, Unit, Repr>
 where
@@ -345,6 +359,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr, Repr2> SubAssign<Amount<TF, Unit, Repr2>>
     for Instant<TF, Unit, Repr>
 where
@@ -356,6 +371,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Sub for Instant<TF, Unit, Repr>
 where
     Repr: Sub + Copy,
@@ -367,6 +383,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr, Repr2> Sub<Amount<TF, Unit, Repr2>>
     for Instant<TF, Unit, Repr>
 where
@@ -381,6 +398,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> MulAssign<Repr> for Instant<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
@@ -390,6 +408,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Mul<Repr> for Instant<TF, Unit, Repr>
 where
     Repr: MulAssign + Copy,
@@ -402,6 +421,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> Div<Self> for Instant<TF, Unit, Repr>
 where
     Repr: Div<Repr> + Copy,
@@ -413,6 +433,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> fmt::Debug for Instant<TF, Unit, Repr>
 where
     Repr: fmt::Debug,
@@ -422,6 +443,7 @@ where
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr> fmt::Display for Instant<TF, Unit, Repr>
 where
     Repr: fmt::Display,
@@ -432,6 +454,7 @@ where
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Unit, Repr: Serialize> Serialize for Instant<TF, Unit, Repr> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.0.serialize(serializer)
@@ -439,6 +462,7 @@ impl<const TF: TraitFlags, Unit, Repr: Serialize> Serialize for Instant<TF, Unit
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<'de, const TF: TraitFlags, Unit, Repr> Deserialize<'de> for Instant<TF, Unit, Repr>
 where
     Repr: Deserialize<'de>,

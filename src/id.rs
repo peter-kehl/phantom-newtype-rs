@@ -14,6 +14,7 @@
 // limitations under the License.
 
 use crate::displayer::{DisplayProxy, DisplayerOf};
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 use crate::trait_flag::{self, TraitFlags};
 use core::cmp::Ordering;
 use core::fmt;
@@ -162,12 +163,14 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 /// assert_eq!(serde_json::to_string(&user_id).unwrap(), serde_json::to_string(&repr).unwrap());
 /// }
 /// ```
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 #[repr(transparent)]
 pub struct Id<const TF: TraitFlags, Entity, Repr>(
     Repr,
     PhantomData<core::sync::atomic::AtomicPtr<Entity>>,
 );
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
     /// `get` returns the underlying representation of the identifier.
     ///
@@ -211,11 +214,12 @@ impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr> {
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr> Id<TF, Entity, Repr>
 where
-    Entity: DisplayerOf<Self>, //TODO rmeove: DisplayerOf<Id<TF, Entity, Repr>>,
+    Entity: DisplayerOf<Self>,
 {
-    /// `display` provides a machanism to implement a custom display
+    /// `display` provides a mechanism to implement a custom display
     /// for phantom types.
     ///
     /// ```
@@ -224,29 +228,34 @@ where
     ///     feature(generic_const_exprs),
     /// )]
     ///
-    /// //use phantom_newtype::{Id, DisplayerOf};
     /// use phantom_newtype::DisplayerOf;
-    /// use phantom_newtype::IdNoCopyNoDefault;
-    /// //use phantom_newtype::IdIsCopyIsDefault as Id;
-    /// //use phantom_newtype::IdNoCopyNoDefault as Id;
     /// use core::fmt;
     ///
     /// enum Message {}
-    /// type MessageId = IdNoCopyNoDefault<Message, [u8; 32]>;
+    /// // This causes ICE:
+    /// //type MessageId = phantom_newtype::Id<Message, [u8; 32]>;
+    /// // No ICE:
+    /// type MessageId = phantom_newtype::IdForFlags<{phantom_newtype::trait_flag::TRAIT_FLAGS_NO_COPY_NO_DEFAULT}, Message, [u8; 32]>;
     ///
     /// impl DisplayerOf<MessageId> for Message {
     ///   fn display(id: &MessageId, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    ///     todo!()
+    ///     id.get().iter().try_for_each(|b| write!(f, "{:02x}", b))
     ///   }
     /// }
     ///
-    /// MessageId::from([0u8; 32]);
+    /// let vec: Vec<_> = (0u8..32u8).collect();
+    /// let mut arr: [u8; 32] = [0u8; 32];
+    /// (&mut arr[..]).copy_from_slice(&vec[..]);
+    ///
+    /// assert_eq!(format!("{}", MessageId::from(arr).display()),
+    ///            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f");
     /// ```
     pub fn display(&self) -> DisplayProxy<'_, Self, Entity> {
         DisplayProxy::new(self)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: Clone> Clone for Id<TF, Entity, Repr> {
     fn clone(&self) -> Self {
         Self::from(self.get().clone())
@@ -271,44 +280,52 @@ impl<Unit, Repr: Default> Default
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: PartialEq> PartialEq for Id<TF, Entity, Repr> {
     fn eq(&self, rhs: &Self) -> bool {
         self.get().eq(&rhs.get())
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: PartialOrd> PartialOrd for Id<TF, Entity, Repr> {
     fn partial_cmp(&self, rhs: &Self) -> Option<Ordering> {
         self.get().partial_cmp(&rhs.get())
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: Ord> Ord for Id<TF, Entity, Repr> {
     fn cmp(&self, rhs: &Self) -> Ordering {
         self.get().cmp(&rhs.get())
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: Hash> Hash for Id<TF, Entity, Repr> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.get().hash(state)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr> From<Repr> for Id<TF, Entity, Repr> {
     fn from(repr: Repr) -> Self {
         Self::new(repr)
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: Eq> Eq for Id<TF, Entity, Repr> {}
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: fmt::Debug> fmt::Debug for Id<TF, Entity, Repr> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self.get())
     }
 }
 
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr: fmt::Display> fmt::Display for Id<TF, Entity, Repr> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.get())
@@ -316,6 +333,7 @@ impl<const TF: TraitFlags, Entity, Repr: fmt::Display> fmt::Display for Id<TF, E
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<const TF: TraitFlags, Entity, Repr> Serialize for Id<TF, Entity, Repr>
 where
     Repr: Serialize,
@@ -326,6 +344,7 @@ where
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(feature = "unstable_generic_const_own_type", allow(deprecated))]
 impl<'de, const TF: TraitFlags, Entity, Repr> Deserialize<'de> for Id<TF, Entity, Repr>
 where
     Repr: Deserialize<'de>,
